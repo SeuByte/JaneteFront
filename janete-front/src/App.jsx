@@ -1,9 +1,22 @@
-import AppRoutes from "./routes/AppRoutes";
+import { Routes, Route } from 'react-router-dom'; 
+{/* Permite que a página deixe de ser estática (pagina unica) e que permita navegar através das rotas */}
 
-export default function App() {
+import Login from './Pages/login';
+import Cadastro from './Pages/cadastro';
+
+function App() {
+
   return (
-    <>
-      <AppRoutes />
-    </>
+    <Routes>
+      {/* Aqui o App decide qual 'front' mostrar baseado na URL */}
+      <Route path="/" element={<Login/>}/>
+       {/**Aqui ele define qual vai ser a página que ira aparecer após iniciar o servidor*/}
+
+
+      <Route path="/cadastro" element={<Cadastro/>}/>
+      {/* Aqui ele move para a aba cadastro após acionada */}
+    </Routes>
   );
 }
+
+export default App;
