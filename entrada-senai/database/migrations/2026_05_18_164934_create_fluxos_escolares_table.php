@@ -5,11 +5,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void
+   public function up(): void
 {
     Schema::create('fluxos_escolares', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade'); // Adicionado o nullable para evitar bloqueios ao recriar
+        $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Coluna obrigatória vinculada ao responsável
         $table->string('nome_aluno');
         $table->string('nome_professor');
         $table->string('nome_responsavel');
@@ -21,6 +21,7 @@ return new class extends Migration {
         $table->timestamp('data_hora_validacao')->nullable();
         $table->timestamps();
     });
+
 }
     public function down(): void
     {
