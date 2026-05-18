@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\FluxoEscolar; // Importando o modelo que criamos
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +16,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Cria o responsável pelo aluno (Usando a estrutura padrão do Laravel)
+        $responsavel = User::factory()->create([
+            'name' => 'Carlos Silva (Pai)',
+            'email' => 'carlos@email.com',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // 2. Cria a simulação de um fluxo escolar pendente para testarmos na portaria
+        FluxoEscolar::create([
+            'user_id' => $responsavel->id,
+            'nome_aluno' => 'Pedro Silva',
+            'tipo' => 'saida',
+            'autorizado_responsavel' => true,
+            'autorizado_professor' => true,
+            'status' => 'pendente',
         ]);
     }
 }
