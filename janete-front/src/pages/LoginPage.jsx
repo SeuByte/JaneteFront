@@ -21,7 +21,8 @@ function Login() {
           <h3>Senha</h3>
           <input type="password" placeholder='*****'/>
            
-          <a href="">Esqueci a senha</a>
+          <a href="" className='esqueci'>Esqueci a senha</a>
+          
 
           <Link to="/cadastro" className='Cadastrar'>Entrar</Link>
           
@@ -32,6 +33,7 @@ function Login() {
             <img src="/facebookIcon.png" className='icon' alt="" />
 
             <img src="/githubIcon.png" className='icon' alt="" />
+            
 
             
           
@@ -39,6 +41,8 @@ function Login() {
             
             
             </div>
+            <p >Não tem uma conta? <a href="" className='CadastrEAqui' >Cadastre aqui</a>
+            </p>
         </div>
       </div>
     </div>

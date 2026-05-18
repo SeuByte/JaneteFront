@@ -19,16 +19,18 @@ body {
 .cardzao {
   background-color: rgb(254, 254, 254);
   width: 40vh;
-  height: 75vh;
+  height: 80vh;
   padding: 3rem;
   border-radius: 4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  
+  /* MUDANÇA AQUI: Alinha os elementos do topo para baixo sequencialmente */
+  justify-content: flex-start; 
+  
   margin-right: 21rem;
   box-shadow: 0 0.5rem 1.5rem rgba(255, 99, 2, 0.852);
-  
 }
 
 
@@ -37,14 +39,11 @@ body {
   border-radius: 50%;
   width: 18vh;
   height: 18vh;
+  border: 0.1rem solid rgb(48, 154, 32) ;
+  
 }
 
-h2 {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-size: 2rem;
-  color: rgb(36, 209, 20);
-  margin: 0;
-}
+
 
 .card {
   display: flex;
@@ -52,13 +51,14 @@ h2 {
   text-align: center;
   margin-top: 5vh;
   margin: 0;
+  justify-content: center;
 }
 
 h3 {
   font-family:  system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 2rem;
   color: rgb(65, 171, 67);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 input {
@@ -70,7 +70,8 @@ input {
 
 }
 
-a {
+
+.esqueci {
   color: rgb(0, 170, 255);
   margin-top: 1rem;
   display: flex;
@@ -91,8 +92,15 @@ a {
   background-color: rgb(255, 255, 255);
   cursor: pointer;
   margin-top: 2rem;
+  border: 0.1rem solid black;
 
 }
+
+.icon:hover {
+transition: 0.6s;
+width: 2.5rem; 
+}
+
 
 
 
@@ -104,13 +112,15 @@ a {
   padding: 0.7rem;
   border-radius: 2rem;
   display: flex;
-  align-items: center;
   justify-content: center;
-  text-decoration: none;
   color: aliceblue;
-  font-family: Arial, Helvetica, sans-serif ;
-  font-size: 1.4rem;
-  margin-top: 1rem;
+  margin: 1.5rem auto 0 auto;
+  text-decoration: none;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 1.5rem;
+  align-items: center;
+
+  
 }
 
 .Cadastrar:hover {
@@ -118,3 +128,13 @@ a {
   transition: 0.6s;
 }
 
+.CadastrEAqui {
+  color: rgb(0, 170, 255);
+  margin-top: 3rem;
+
+}
+
+p {
+  color: rgb(113, 113, 113);
+  margin-top: 2rem;
+}
