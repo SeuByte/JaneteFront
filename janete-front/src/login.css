@@ -4,7 +4,7 @@ body {
 }
 
 .fundo {
-  background-image: url(./assets/BackGJanete.png);
+  background-image: url(./assets/backGjanete.png );
  background-size: 100% 100%; /* Força a imagem a ter exatamente o tamanho da tela */
   background-repeat: no-repeat;
   background-position: center;
@@ -29,8 +29,8 @@ body {
   /* MUDANÇA AQUI: Alinha os elementos do topo para baixo sequencialmente */
   justify-content: flex-start; 
   
-  margin-right: 21rem;
-  box-shadow: 0 0.5rem 1.5rem rgba(255, 99, 2, 0.852);
+  margin-right: 35rem;
+  box-shadow: 0 0.5rem 1.5rem #ffaa0b;
 }
 
 
@@ -49,8 +49,7 @@ body {
   display: flex;
   flex-direction: column;
   text-align: center;
-  margin-top: 5vh;
-  margin: 0;
+  margin-top: 2rem;
   justify-content: center;
 }
 
@@ -136,5 +135,5 @@ width: 2.5rem;
 
 p {
   color: rgb(113, 113, 113);
-  margin-top: 2rem;
+  margin-top: 4rem;
 }

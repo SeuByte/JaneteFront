@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import Login from './Pages/LoginPage';
 import Cadastro from './Pages/CadastroPage';
 
+
 function App() {
 
   return (
