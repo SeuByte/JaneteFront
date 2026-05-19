@@ -13,7 +13,7 @@ function Login() {
       <div className='cardzao'>
         <div className='Janete'>
           <img src="/JaneteIcon.png" alt="" className='JaneteIcon' />
-</div>
+
      
         <div className='card'>
           <h3>Usuário</h3>
@@ -24,7 +24,7 @@ function Login() {
           <a href="" className='esqueci'>Esqueci a senha</a>
           
 
-          <Link to="/cadastro" className='Cadastrar'>Entrar</Link>
+          <Link to="" className='Cadastrar'>Entrar</Link>
           
           <div className='login-icons'>
 
@@ -41,8 +41,8 @@ function Login() {
             
             
             </div>
-            <p >Não tem uma conta? <a href="" className='CadastrEAqui' >Cadastre aqui</a>
-            </p>
+            </div>
+            <p >Não tem uma conta? <Link to="/CadastroPage"></Link>Cadastre aqui</p>
         </div>
       </div>
     </div>
