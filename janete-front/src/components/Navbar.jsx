@@ -2,7 +2,6 @@ import { Link, NavLink } from "react-router-dom";
 
 import {
   Home,
-  PlusCircle,
   ShoppingCart,
   BarChart3,
   User,
@@ -20,11 +19,6 @@ export default function Navbar() {
       name: "Home",
       path: "/",
       icon: Home,
-    },
-    {
-      name: "Cadastro",
-      path: "/cadastro",
-      icon: PlusCircle,
     },
     {
       name: "Dashboard",
