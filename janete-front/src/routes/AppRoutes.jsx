@@ -20,6 +20,7 @@ export default function AppRoutes() {
         
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
+
       </Routes>
     </BrowserRouter>
   );
