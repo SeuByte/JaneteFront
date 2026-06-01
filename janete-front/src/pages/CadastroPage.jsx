@@ -104,7 +104,7 @@ export default function CadastroJanete() {
     </div>
   );
 
-  // Classes utilitárias compartilhadas vindas dos estilos de formatação do seu front-end
+  // Classes utilitárias compartilhadas 
   const inputStyle = "w-full rounded-full border border-lime-400 bg-white px-5 py-2.5 text-start text-sm text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200";
   const labelStyle = "block text-center text-sm font-semibold text-[#19b623] mb-1";
 
@@ -115,7 +115,7 @@ export default function CadastroJanete() {
       <div className="w-full max-w-3xl min-h-[70vh] rounded-[3rem] bg-white/95 p-8 md:p-12 shadow-[0_0.5rem_1.5rem_#ffaa0b] flex flex-col justify-between">
         
         <div>
-          {/* PASSO 1: INFORMAÇÕES PESSOAIS (Foto 8c63acbc-341b-4183-9cb8-a6ed7b65d22d.jpg) */}
+          {/* PASSO 1: INFORMAÇÕES PESSOAIS */}
           {passoAtivo === 1 && (
             <div>
               <HeaderCadastro />
@@ -131,7 +131,7 @@ export default function CadastroJanete() {
                 <div>
                 <label className={labelStyle}>CNPJ/CPF*</label>
                 <input 
-                  type="text" // Mudado de number para text
+                  type="text" // Mudado de number para texto
                   name="cnpjCpf" 
                   placeholder="000.000.000-00 ou 00.000.000/0001-00" 
                   value={formData.cnpjCpf} // Ajustado o nome para refletir ambos
@@ -168,7 +168,7 @@ export default function CadastroJanete() {
             </div>
           )}
 
-          {/* PASSO 2: ENDEREÇO (Foto c7c86253-981e-465b-b53d-b1684c0cbae7.jpg) */}
+          {/* PASSO 2: ENDEREÇO */}
           {passoAtivo === 2 && (
             <div>
               <HeaderCadastro />
@@ -229,7 +229,7 @@ export default function CadastroJanete() {
             </div>
           )}
 
-          {/* PASSO 3: CRIE SUA CONTA (Foto d47ff2b2-e270-4570-bb73-b9e66a429e9a.jpg) */}
+          {/* PASSO 3: CRIE SUA CONTA */}
           {passoAtivo === 3 && (
             <div className="flex flex-col items-center">
               <HeaderCadastro />
