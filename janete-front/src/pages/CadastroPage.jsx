@@ -1,8 +1,40 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import bgImage from '../assets/BackGJanete.png'; // Referência de background do seu projeto
+import bgImage from '../assets/BackGJanete.png';
 
-// --- FUNÇÕES AUXILIARES DE VALIDAÇÃO DE DOCUMENTOS ---
+// --- CONFIGURAÇÕES E FUNÇÕES AUXILIARES ---
+
+// Array de estados movido para fora do componente para evitar recriações na renderização
+const estadosBrasil = [
+  { uf: 'AC', nome: 'Acre' },
+  { uf: 'AL', nome: 'Alagoas' },
+  { uf: 'AP', nome: 'Amapá' },
+  { uf: 'AM', nome: 'Amazonas' },
+  { uf: 'BA', nome: 'Bahia' },
+  { uf: 'CE', nome: 'Ceará' },
+  { uf: 'DF', nome: 'Distrito Federal' },
+  { uf: 'ES', nome: 'Espírito Santo' },
+  { uf: 'GO', nome: 'Goiás' },
+  { uf: 'MA', nome: 'Maranhão' },
+  { uf: 'MT', nome: 'Mato Grosso' },
+  { uf: 'MS', nome: 'Mato Grosso do Sul' },
+  { uf: 'MG', nome: 'Minas Gerais' },
+  { uf: 'PA', nome: 'Pará' },
+  { uf: 'PB', nome: 'Paraíba' },
+  { uf: 'PR', nome: 'Paraná' },
+  { uf: 'PE', nome: 'Pernambuco' },
+  { uf: 'PI', nome: 'Piauí' },
+  { uf: 'RJ', nome: 'Rio de Janeiro' },
+  { uf: 'RN', nome: 'Rio Grande do Norte' },
+  { uf: 'RS', nome: 'Rio Grande do Sul' },
+  { uf: 'RO', nome: 'Rondônia' },
+  { uf: 'RR', nome: 'Roraima' },
+  { uf: 'SC', nome: 'Santa Catarina' },
+  { uf: 'SP', nome: 'São Paulo' },
+  { uf: 'SE', nome: 'Sergipe' },
+  { uf: 'TO', nome: 'Tocantins' }
+];
+
 const validarCPF = (cpf) => {
   const limpo = cpf.replace(/\D/g, '');
   if (limpo.length !== 11 || /^(\d)\1+$/.test(limpo)) return false;
@@ -41,9 +73,9 @@ const validarCNPJ = (cnpj) => {
   tamanho = tamanho + 1;
   numeros = limpo.substring(0, tamanho);
   soma = 0;
-  pos = tamanho - 7;
-  for (let i = tamanho; i >= 1; i--) {
-    soma += numeros.charAt(tamanho - i) * pos--;
+  pos = presidential = tamanho - 7;
+  for (let i = presidential; i >= 1; i--) {
+    soma += numeros.charAt( presidential - i) * pos--;
     if (pos < 2) pos = 9;
   }
   resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
@@ -52,15 +84,15 @@ const validarCNPJ = (cnpj) => {
   return true;
 };
 
+// --- COMPONENTE PRINCIPAL ---
+
 export default function CadastroJanete() {
-  // Estado para alternar estritamente entre as 3 telas das fotos: 1, 2 ou 3
   const [passoAtivo, setPassoAtivo] = useState(1);
 
-  // Estados dos inputs baseados nas imagens
   const [formData, setFormData] = useState({
-    perfil: '',
+    perfil: 'Pessoa Física',
+    cnpjCpf: '',
     nomeCompleto: '',
-    cpf: '',
     dataNascimento: '',
     telefone: '',
     cep: '',
@@ -74,290 +106,467 @@ export default function CadastroJanete() {
     email: '',
     senha: '',
     termoAceite: true,
-    politicaPrivacidade: true
+    politicaPrivacidade: true,
   });
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+  const buscarCEP = async (cep) => {
+    const cepLimpo = cep.replace(/\D/g, '');
+    if (cepLimpo.length !== 8) return;
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        alert('CEP não encontrado');
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        endereco: data.logradouro || '',
+        bairro: data.bairro || '',
+        cidade: data.localidade || '',
+        estado: data.uf || '',
+        complemento: data.complemento || '',
+      }));
+    } catch (error) {
+      console.error("Erro ao buscar o CEP:", error);
+    }
   };
 
-  // Cabeçalho padronizado contendo o título idêntico ao das imagens
+  const handleChange = async (e) => {
+    const { name, value, type, checked } = e.target;
+    let valor = value;
+
+    if (name === 'cep') {
+      valor = value
+        .replace(/\D/g, '')
+        .replace(/^(\d{5})(\d)/, '$1-$2')
+        .slice(0, 9);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : valor,
+    }));
+
+    if (name === 'cep') {
+      const cepLimpo = valor.replace(/\D/g, '');
+      if (cepLimpo.length === 8) {
+        buscarCEP(cepLimpo);
+      }
+    }
+  };
+
+  const inputStyle = `
+    w-full
+    rounded-2xl
+    border
+    border-slate-300
+    bg-white
+    px-5
+    py-3
+    text-slate-700
+    outline-none
+    transition
+    focus:border-[#2fb21e]
+    focus:ring-4
+    focus:ring-green-100
+  `;
+
+  const labelStyle = 'block text-sm font-semibold text-[#19b623] mb-2';
+
   const HeaderCadastro = () => (
-    <div className="w-full flex flex-col items-center mb-6">
+    <div className="w-full flex flex-col items-center">
       <img
         src="/JaneteIcon.png"
-        alt="Janete Icon"
-        className="mb-4 h-24 w-24 rounded-full border border-[#309A20] bg-white object-cover"
+        alt="Janete"
+        className="
+          h-28
+          w-28
+          rounded-full
+          border-2
+          border-[#2fb21e]
+          bg-white
+          p-2
+          shadow-lg
+          object-cover
+        "
       />
-      <h2 className="text-xl font-bold text-slate-800 mb-4">Primeiro Acesso? Cadastre-se</h2>
-      
-      {/* Abas superiores de progresso */}
-      <div className="flex w-full justify-center space-x-4 border-b border-slate-200 pb-3 text-xs font-semibold text-slate-400">
-        <span className={passoAtivo === 1 ? 'text-[#19b623] border-b-2 border-[#19b623] pb-3 -mb-3.5 font-bold' : ''}>Informações Pessoais</span>
-        <span className={passoAtivo === 2 ? 'text-[#19b623] border-b-2 border-[#19b623] pb-3 -mb-3.5 font-bold' : ''}>Endereço</span>
-        <span className={passoAtivo === 3 ? 'text-[#19b623] border-b-2 border-[#19b623] pb-3 -mb-3.5 font-bold' : ''}>Crie sua conta</span>
+
+      <h2 className="mt-5 text-3xl font-bold text-slate-800 text-center">
+        Primeiro Acesso?
+      </h2>
+
+      <p className="text-slate-500 text-sm mt-2 text-center">
+        Cadastre-se para acessar a plataforma
+      </p>
+
+      {/* Stepper */}
+      <div className="flex items-center justify-center gap-4 mt-8">
+        {[1, 2, 3].map((passo) => (
+          <div
+            key={passo}
+            className={`
+              h-11 w-11 rounded-full flex items-center justify-center
+              font-bold transition-all
+              ${
+                passoAtivo >= passo
+                  ? 'bg-[#2fb21e] text-white'
+                  : 'bg-slate-200 text-slate-500'
+              }
+            `}
+          >
+            {passo}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-3 text-sm text-slate-600 font-medium text-center">
+        {passoAtivo === 1 && 'Informações Pessoais'}
+        {passoAtivo === 2 && 'Endereço'}
+        {passoAtivo === 3 && 'Criar Conta'}
       </div>
     </div>
   );
 
-  // Classes utilitárias compartilhadas 
-  const inputStyle = "w-full rounded-full border border-lime-400 bg-white px-5 py-2.5 text-start text-sm text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200";
-  const labelStyle = "block text-center text-sm font-semibold text-[#19b623] mb-1";
-
   return (
-    <div className="min-h-screen w-full grid place-items-center bg-no-repeat bg-center bg-cover p-4 font-sans antialiased" style={{ backgroundImage: `url(${bgImage})` }}>
-      
-      {/* Container adaptado do formato do seu LoginPage/CadastroCliente */}
-      <div className="w-full max-w-3xl min-h-[70vh] rounded-[3rem] bg-white/95 p-8 md:p-12 shadow-[0_0.5rem_1.5rem_#ffaa0b] flex flex-col justify-between">
-        
-        <div>
-          {/* PASSO 1: INFORMAÇÕES PESSOAIS */}
+    <div
+      className="relative min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+      }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px]" />
+
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div
+          className="
+            w-full
+            max-w-5xl
+            rounded-[2.5rem]
+            bg-white/85
+            backdrop-blur-md
+            border
+            border-white/40
+            shadow-2xl
+            p-6
+            md:p-10
+          "
+        >
+          <HeaderCadastro />
+
+          {/* PASSO 1 */}
           {passoAtivo === 1 && (
-            <div>
-              <HeaderCadastro />
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-10">
                 <div>
                   <label className={labelStyle}>Perfil*</label>
-                  <select name="perfil" value={formData.perfil} onChange={handleChange} className={`${inputStyle} text-center pl-8`}>
-                    <option>Pessoa Física</option>
-                    <option>Pessoa Jurídica</option>
+                  <select
+                    name="perfil"
+                    value={formData.perfil}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  >
+                    <option value="Pessoa Física">Pessoa Física</option>
+                    <option value="Pessoa Jurídica">Pessoa Jurídica</option>
                   </select>
                 </div>
-                                
-                <div>
-                <label className={labelStyle}>CNPJ/CPF*</label>
-                <input 
-                  type="text" // Mudado de number para texto
-                  name="cnpjCpf" 
-                  placeholder="000.000.000-00 ou 00.000.000/0001-00" 
-                  value={formData.cnpjCpf} // Ajustado o nome para refletir ambos
-                  onChange={handleChange} 
-                  maxLength={18} // Limita o tamanho máximo com máscara
-                  className={inputStyle} 
-                  required
-                />
-              </div>
 
                 <div>
+                  <label className={labelStyle}>CPF / CNPJ*</label>
+                  <input
+                    type="text"
+                    name="cnpjCpf"
+                    value={formData.cnpjCpf}
+                    onChange={handleChange}
+                    placeholder="000.000.000-00"
+                    className={inputStyle}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
                   <label className={labelStyle}>Nome Completo*</label>
-                  <input type="text" name="nomeCompleto" placeholder="Nome Completo" value={formData.nomeCompleto} onChange={handleChange} className={inputStyle } />
+                  <input
+                    type="text"
+                    name="nomeCompleto"
+                    value={formData.nomeCompleto}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
 
                 <div>
                   <label className={labelStyle}>Data de Nascimento*</label>
-                  <input type="date" name="dataNascimento" placeholder="dd/mm/aaaa" value={formData.dataNascimento} onChange={handleChange} className={inputStyle} />
+                  <input
+                    type="date"
+                    name="dataNascimento"
+                    value={formData.dataNascimento}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
+
                 <div>
                   <label className={labelStyle}>Telefone*</label>
-                  <input type="text" name="telefone" placeholder="(00) 00000-0000" value={formData.telefone} onChange={handleChange} className={inputStyle} />
+                  <input
+                    type="text"
+                    name="telefone"
+                    value={formData.telefone}
+                    onChange={handleChange}
+                    placeholder="(19) 99999-9999"
+                    className={inputStyle}
+                  />
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-10">
-                <Link to="/" className="w-full max-w-xs h-12 flex items-center justify-center rounded-full border border-slate-400 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition tracking-wide">
-                  CANCELAR
+              <div className="flex flex-col md:flex-row gap-4 justify-center mt-10">
+                <Link
+                  to="/"
+                  className="
+                    w-full md:w-56 h-12 rounded-2xl border border-slate-300
+                    flex items-center justify-center font-semibold
+                    hover:bg-slate-50 transition
+                  "
+                >
+                  Cancelar
                 </Link>
-                <button onClick={() => setSetPassoAtivo(2)} className="w-full max-w-xs h-12 rounded-full bg-[#2fb21e] text-white font-semibold text-sm hover:bg-[#1e8716] transition tracking-wide">
-                  PRÓXIMO
+
+                <button
+                  onClick={() => setPassoAtivo(2)}
+                  className="
+                    w-full md:w-56 h-12 rounded-2xl bg-gradient-to-r
+                    from-[#2fb21e] to-[#49d234] text-white font-semibold
+                    shadow-lg hover:scale-[1.02] transition
+                  "
+                >
+                  Próximo
                 </button>
               </div>
-            </div>
+            </>
           )}
 
-          {/* PASSO 2: ENDEREÇO */}
+          {/* PASSO 2 */}
           {passoAtivo === 2 && (
-            <div>
-              <HeaderCadastro />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <div className="md:col-span-1">
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10">
+                <div>
                   <label className={labelStyle}>CEP*</label>
-                  <input type="text" name="cep" value={formData.cep} onChange={handleChange} className={inputStyle} />
+                  <input
+                    type="text"
+                    name="cep"
+                    value={formData.cep}
+                    onChange={handleChange}
+                    placeholder="00000-000"
+                    maxLength={9}
+                    className={inputStyle}
+                  />
                 </div>
-                <div className="md:col-span-2 flex items-center justify-center md:justify-start pt-5">
-                  <a href="#cep" className="text-xs text-blue-500 font-medium hover:underline">Não sabe o seu CEP? Consulte Aqui</a>
+
+                <div className="md:col-span-2 flex items-end pb-3">
+                  <a href="https://buscacepinter.correios.com.br/" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 font-medium hover:underline">
+                    Não sabe o seu CEP? Consulte Aqui
+                  </a>
                 </div>
 
                 <div className="md:col-span-3">
                   <label className={labelStyle}>Endereço*</label>
-                  <input type="text" name="endereco" value={formData.endereco} onChange={handleChange} className={inputStyle} />
+                  <input
+                    type="text"
+                    name="endereco"
+                    value={formData.endereco}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
 
                 <div>
                   <label className={labelStyle}>Número*</label>
-                  <input type="text" name="numero" value={formData.numero} onChange={handleChange} className={`${inputStyle} !bg-gray-50 font-bold`} />
+                  <input
+                    type="text"
+                    name="numero"
+                    value={formData.numero}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
+
                 <div>
                   <label className={labelStyle}>Complemento</label>
-                  <input type="text" name="complemento" placeholder="Complemento" value={formData.complemento} onChange={handleChange} className={inputStyle} />
+                  <input
+                    type="text"
+                    name="complemento"
+                    value={formData.complemento}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
+
                 <div>
                   <label className={labelStyle}>Bairro*</label>
-                  <input type="text" name="bairro" value={formData.bairro} onChange={handleChange} className={inputStyle} />
+                  <input
+                    type="text"
+                    name="bairro"
+                    value={formData.bairro}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
 
                 <div>
                   <label className={labelStyle}>Cidade*</label>
-                  <input type="text" name="cidade" value={formData.cidade} onChange={handleChange} className={inputStyle} />
+                  <input
+                    type="text"
+                    name="cidade"
+                    value={formData.cidade}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
-                <div className="md:col-span-2">
+
+                <div>
                   <label className={labelStyle}>Estado*</label>
-                  <select name="estado" value={formData.estado} onChange={handleChange} className={`${inputStyle} text-center pl-8`}>
-                    <option>São Paulo</option>
-                    <option>Rio de Janeiro</option>
-                    <option>Minas Gerais</option>
+                  <select
+                    name="estado"
+                    value={formData.estado}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  >
+                    <option value="">Selecione</option>
+                    {estadosBrasil.map((estado) => (
+                      <option key={estado.uf} value={estado.uf}>
+                        {estado.nome}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
-              <div className="mt-5 flex items-center justify-center">
-                <input type="checkbox" id="cobrancaIgual" name="cobrancaIgual" checked={formData.cobrancaIgual} onChange={handleChange} className="h-4 w-4 text-[#2fb21e] border-lime-400 rounded focus:ring-lime-200" />
-                <label htmlFor="cobrancaIgual" className="ml-2 text-xs font-medium text-slate-600">O endereço de cobrança é o mesmo que o endereço de entrega?</label>
+              <div className="flex justify-center mt-6">
+                <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="cobrancaIgual"
+                    checked={formData.cobrancaIgual}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-[#2fb21e] border-slate-300 rounded focus:ring-[#2fb21e]"
+                  />
+                  Endereço de cobrança igual ao de entrega
+                </label>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
-                <button onClick={() => setPassoAtivo(1)} className="w-full max-w-xs h-12 rounded-full border border-slate-400 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition tracking-wide">
-                  ANTERIOR
+              <div className="flex flex-col md:flex-row gap-4 justify-center mt-10">
+                <button
+                  onClick={() => setPassoAtivo(1)}
+                  className="
+                    w-full md:w-56 h-12 rounded-2xl border border-slate-300
+                    hover:bg-slate-50 transition
+                  "
+                >
+                  Anterior
                 </button>
-                <button onClick={() => setPassoAtivo(3)} className="w-full max-w-xs h-12 rounded-full bg-[#2fb21e] text-white font-semibold text-sm hover:bg-[#1e8716] transition tracking-wide">
-                  PRÓXIMO
+
+                <button
+                  onClick={() => setPassoAtivo(3)}
+                  className="
+                    w-full md:w-56 h-12 rounded-2xl bg-gradient-to-r
+                    from-[#2fb21e] to-[#49d234] text-white font-semibold shadow-lg
+                  "
+                >
+                  Próximo
                 </button>
               </div>
-            </div>
+            </>
           )}
 
-          {/* PASSO 3: CRIE SUA CONTA */}
+          {/* PASSO 3 */}
           {passoAtivo === 3 && (
-            <div className="flex flex-col items-center">
-              <HeaderCadastro />
-              
-              <div className="w-full max-w-md space-y-4 mt-6">
+            <>
+              <div className="max-w-xl mx-auto mt-10 space-y-5">
                 <div>
                   <label className={labelStyle}>Email*</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={`${inputStyle} text-slate-400 bg-slate-50 cursor-not-allowed`} disabled />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
 
                 <div>
                   <label className={labelStyle}>Senha*</label>
-                  <input type="password" name="senha" placeholder="........." value={formData.senha} onChange={handleChange} className={inputStyle} />
+                  <input
+                    type="password"
+                    name="senha"
+                    value={formData.senha}
+                    onChange={handleChange}
+                    className={inputStyle}
+                  />
                 </div>
 
-                <div className="pt-2 space-y-2 flex flex-col items-center text-center">
-                  <div className="flex items-center">
-                    <input type="checkbox" id="termoAceite" name="termoAceite" checked={formData.termoAceite} onChange={handleChange} className="h-4 w-4 text-[#2fb21e] border-lime-400 rounded" />
-                    <label htmlFor="termoAceite" className="ml-2 text-xs text-slate-600">Li e concordo com o <span className="font-bold underline cursor-pointer text-[#19b623]">termo de aceite?*</span></label>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" id="politicaPrivacidade" name="politicaPrivacidade" checked={formData.politicaPrivacidade} onChange={handleChange} className="h-4 w-4 text-[#2fb21e] border-lime-400 rounded" />
-                    <label htmlFor="politicaPrivacidade" className="ml-2 text-xs text-slate-600">Li e concordo com a <span className="font-bold underline cursor-pointer text-[#19b623]">Política de Privacidade</span></label>
-                  </div>
+                <div className="space-y-3 pt-2">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer text-slate-600">
+                    <input
+                      type="checkbox"
+                      name="termoAceite"
+                      checked={formData.termoAceite}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-[#2fb21e] border-slate-300 rounded focus:ring-[#2fb21e]"
+                    />
+                    Li e concordo com os <span className="font-bold underline text-[#19b623]">termos de uso.*</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm cursor-pointer text-slate-600">
+                    <input
+                      type="checkbox"
+                      name="politicaPrivacidade"
+                      checked={formData.politicaPrivacidade}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-[#2fb21e] border-slate-300 rounded focus:ring-[#2fb21e]"
+                    />
+                    Li e concordo com a <span className="font-bold underline text-[#19b623]">Política de Privacidade.*</span>
+                  </label>
                 </div>
               </div>
 
-              <div className="w-full flex flex-col sm:flex-row justify-center items-center gap-4 mt-10">
-                <button onClick={() => setPassoAtivo(2)} className="w-full max-w-xs h-12 rounded-full border border-slate-400 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition tracking-wide">
-                  ANTERIOR
+              <div className="flex flex-col md:flex-row gap-4 justify-center mt-10">
+                <button
+                  onClick={() => setPassoAtivo(2)}
+                  className="
+                    w-full md:w-56 h-12 rounded-2xl border border-slate-300
+                    hover:bg-slate-50 transition
+                  "
+                >
+                  Anterior
                 </button>
-                <Link to="/home" className="w-full max-w-xs h-12 flex items-center justify-center rounded-full bg-[#2fb21e] text-white font-semibold text-sm hover:bg-[#1e8716] transition tracking-wide">
-                  CADASTRAR
+
+                <Link
+                  to="/home"
+                  className="
+                    w-full md:w-56 h-12 rounded-2xl bg-gradient-to-r
+                    from-[#2fb21e] to-[#49d234] text-white font-semibold
+                    flex items-center justify-center shadow-lg hover:scale-[1.02] transition
+                  "
+                >
+                  Cadastrar
                 </Link>
               </div>
-            </div>
+            </>
           )}
+
+          {/* RODAPÉ DO SITE */}
+          <footer className="w-full text-center mt-12 pt-4 border-t border-slate-200 text-[10px] text-slate-400 space-y-1">
+            <p>Janete Produtos Naturais E-mail: comercial@janeteprodutosnaturais.com.br | Whatsapp Araras: (19) 98860-5981 | Leme: (19) 99916-4520</p>
+            <div className="flex justify-center items-center space-x-1 font-bold tracking-wider text-slate-300">
+              <span className="text-emerald-600 text-xs font-black">SeuByte &reg;</span> 
+            </div>
+          </footer>
+
         </div>
-
-        {/* RODAPÉ DO SEU SITE INTEGRADO COM TEXTO REAL */}
-        <footer className="w-full text-center mt-8 pt-4 border-t border-slate-200 text-[10px] text-slate-400 space-y-1">
-          <p>Janete Produtos Naturais E-mail: comercial@janeteprodutosnaturais.com.br | Whatsapp Araras: (19) 98860-5981 | Leme: (19) 99916-4520</p>
-          <div className="flex justify-center items-center space-x-1 font-bold tracking-wider text-slate-300">
-            <span className="text-emerald-600 text-xs font-black">SeuByte &reg;</span> 
-          </div>
-        </footer>
-
       </div>
     </div>
   );
 }
-﻿import { Link } from 'react-router-dom'
-import bgImage from '../assets/BackGJanete.png'
-
-function Cadastro() {
-  return (
-    <div className="min-h-screen grid place-items-center bg-no-repeat bg-center bg-cover px-4" style={{ backgroundImage: `url(${bgImage})` }}>
-      <div className="w-[50vh] h-[80vh] max-w-[32rem] rounded-[4rem] bg-white/95 p-12 shadow-[0_0.5rem_1.5rem_#ffaa0b] flex flex-col items-center justify-start">
-        <img
-          src="/JaneteIcon.png"
-          alt="Janete Icon"
-          className="mb-10 h-[18vh] w-[18vh] rounded-full border border-[#309A20] bg-white object-cover"
-        />
-
-        <div className="w-full space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <label className="text-center text-xl font-semibold text-[#19b623]">Nome</label>
-              <input
-                type="text"
-                className="rounded-full border border-lime-400 bg-white px-6 py-3 text-center text-base text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-center text-xl font-semibold text-[#19b623]">Sobrenome</label>
-              <input
-                type="text"
-                className="rounded-full border border-lime-400 bg-white px-6 py-3 text-center text-base text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <label className="text-center text-xl font-semibold text-[#19b623]">Email</label>
-              <input
-                type="email"
-                className="rounded-full border border-lime-400 bg-white px-6 py-3 text-center text-base text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-center text-xl font-semibold text-[#19b623]">Telefone</label>
-              <input
-                type="text"
-                className="rounded-full border border-lime-400 bg-white px-6 py-3 text-center text-base text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <label className="text-center text-xl font-semibold text-[#19b623]">Senha</label>
-              <input
-                type="password"
-                className="rounded-full border border-lime-400 bg-white px-6 py-3 text-center text-base text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-center text-xl font-semibold text-[#19b623]">Confirmar Senha</label>
-              <input
-                type="password"
-                className="rounded-full border border-lime-400 bg-white px-6 py-3 text-center text-base text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-center">
-            <Link
-              to="/"
-              className="inline-flex h-14 w-full max-w-xs items-center justify-center rounded-full bg-[#2fb21e] px-6 text-lg font-semibold text-white transition hover:bg-[#1e8716]"
-            >
-              Cadastrar
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default Cadastro;
