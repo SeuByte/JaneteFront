@@ -52,7 +52,7 @@ function NavBar() {
           </div>
       </div>
 
-      <div className='bg-[#147C06] mt-2 h-6 w-full'>
+      <div className='bg-[#147C06]  h-6 w-full'>
       </div>
 
 

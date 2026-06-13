@@ -104,8 +104,9 @@
 .ctnpae {
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
+    
     align-items: center;
+    background-color: aliceblue;
       
 }
 
