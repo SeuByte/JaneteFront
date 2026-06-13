@@ -21,7 +21,6 @@ export default function AppRoutes() {
         
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
-        <Route path="/cadastro2" element={<Cadastro2 />} />
 
       </Routes>
     </BrowserRouter>
