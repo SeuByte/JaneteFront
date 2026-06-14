@@ -4,124 +4,87 @@ import reactLogo from '../assets/react.svg'
 import viteLogo from '../assets/vite.svg'
 import heroImg from '../assets/hero.png'
 
-
 import '../footer.css'
 
-
-
-function footer() {
-
-
+function Footer() { // Alterado para Maiúsculo (padrão React)
     return (
-
         <>
+            <footer className="w-full">
+                <div className="bg-[#147C06] h-5"></div>
+                <div className="bg-[#222] text-white">
+                    <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12">
 
+                        {/* Ajuda - Sempre o primeiro (Celular e Desktop) */}
+                        <div className="order-1">
+                            <h2 className="text-3xl font-bold mb-6">
+                                Ajuda e Suporte
+                            </h2>
+                            <ul className="space-y-4 text-lg">
+                                <li className="hover:text-yellow-400 cursor-pointer">
+                                    Produtos e Ofertas
+                                </li>
+                                <li className="hover:text-yellow-400 cursor-pointer">
+                                    Dicas e Receitas
+                                </li>
+                                <li className="hover:text-yellow-400 cursor-pointer">
+                                    Sobre Nós
+                                </li>
+                            </ul>
+                        </div>
 
+                        {/* Contato - Segundo no celular, terceiro no Desktop */}
+                        <div className="order-2 xl:order-3">
+                            <h2 className="text-3xl font-bold mb-6">
+                                Contato
+                            </h2>
+                            <div className="space-y-5 text-lg">
+                                <div className="flex items-center gap-3">
+                                    <img src="./emailIcon.png" className="w-6 h-6" />
+                                    <span>janete.naturais@gmail.com</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <img src="./telIcon.png" className="w-6 h-6" />
+                                    <span>(19) 98328-4729</span>
+                                </div>
+                            </div>
 
-            <div className='backG'>
+                            <div className="mt-8">
+                                <h3 className="text-2xl font-semibold mb-4">
+                                    Nos Siga
+                                </h3>
+                                <div className="flex gap-5">
+                                    <img src="./Instaicon.png" className="w-12 h-12 hover:scale-110 transition" />
+                                    <img src="./WhatsIcon.png" className="w-12 h-12 hover:scale-110 transition" />
+                                    <img src="./faceIcon.png" className="w-12 h-12 hover:scale-110 transition" />
+                                </div>
+                            </div>
+                        </div>
 
-
-                <div className='footer-left'>
-
-                    <h2 className='text-amber-50 font-bold'>AJUDA E SUPORTE</h2>
-                    <li className='text-amber-50 mt-2 ml-2'>
-                        <ul className='text-amber-50'>Produtos e Ofertas</ul>
-                    </li>
-
-                    <li className='text-amber-50 mt-2 ml-2'>
-                        <ul className='text-amber-50'>Dicas e Receitas</ul>
-                    </li>
-
-                    <li className='text-amber-50 mt-2 ml-2'>
-                        <ul className='text-amber-50'>Sobre nós</ul>
-                    </li>
-
-                </div>
-
-                <div className='footer-center'>
-
-                    <a href="https://maps.app.goo.gl/qjCHX4U7MYBDjTjH9">
-                        <img src="./MapaJanete.png" alt="" className='maps' />
-                    </a>
-
-                    <p className='mt-5 text-1xl'>© 2026 Janete Produtos Naturais. Todos os direitos reservados.</p>
-
-                    <p className='mt-3'>CNPJ: 00.000.000/0001-00 | Rua Joaquim Pesito, 123 - Araras, SP.</p>
-
-                </div>
-
-
-                <div className='footer-left'>
-
-                    <h2 className='text-amber-50 font-bold'>CONTATO</h2>
-
-                    <div className='flex justify-center items-center mt-3'>
-
-                        <img src="./emailIcon.png" alt="" className='w-5 h-5 mr-2' />
-
-                        <p className='text-amber-50'>janete.naturais@gmail.com</p>
-
-                    </div>
-
-
-                    <div className='flex justify-center items-center mt-2'>
-
-                        <img src="./telIcon.png" alt="" className='w-5 h-5 mr-2' />
-
-                        <p className='text-amber-50'>(19)98328-4729</p>
-
-                    </div>
-
-
-
-
-
-                    {/* O bloco da direita vira um flexbox vertical */}
-                    <div className='footer-right flex flex-col justify-between h-full min-h-[12rem]'>
-
-
-
-                        {/* O mt-auto cria um "pistão" dinâmico que empurra o bloco para o chão do footer, não importa o tamanho da tela */}
-                        <div className='divicons flex flex-col items-center mt-auto gap-2'>
-
-                            <h4 className='text-amber-50 font-medium text-2xl'>Nos Siga</h4>
-                            
-                            <div className='flex items-center gap-4'>
-                                <img src="./Instaicon.png" alt="Instagram" className='icns-insta' />
-                                <img src="./WhatsIcon.png" alt="WhatsApp" className='icns-whats' />
-                                <img src="./faceIcon.png" alt="Facebook" className='icns-face' />
+                        {/* Mapa - Terceiro no celular, segundo no Desktop */}
+                        <div className="text-center order-3 xl:order-2">
+                            <a href="https://maps.app.goo.gl/qjCHX4U7MYBDjTjH9">
+                                <img
+                                    src="./MapaJanete.png"
+                                    alt="Mapa"
+                                    className="w-full max-w-[420px] mx-auto rounded-xl shadow-lg hover:scale-105 transition"
+                                    />
+                            </a>
+                            <p className="mt-6 text-lg">
+                                © 2026 Janete Produtos Naturais
+                            </p>
+                            <p className="mt-2 text-base">
+                                Rua Joaquim Pesito, 123 - Araras/SP
+                            </p>
+                            <div className="flex justify-center items-center space-x-1 font-bold tracking-wider text-slate-300 flex flex-col gap-4 mt-4">
+                            <span className="text-emerald-600 text-xs font-black">SeuByte &reg;</span> 
                             </div>
                         </div>
 
                     </div>
-
-
                 </div>
-            </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        </> // Fecha fragment
-
-
-
-
+            </footer>
+        </>
     )
 }
 
-export default footer;
+export default Footer;
