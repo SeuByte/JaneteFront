@@ -4,7 +4,7 @@ import MainLayout from "../layouts/MainLayout";
 
 import Home from "../pages/HomePage";
 import Cadastro from "../pages/CadastroPage";
-import Cadastro2 from "../pages/CadrastroP";
+import Cadastro2 from "../pages/AreaClienete";
 import Dashboard from "../pages/DashboardPage";
 import Login from "../pages/LoginPage";
 import Checkout from "../pages/CheckoutPage";

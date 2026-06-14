@@ -333,12 +333,6 @@ export default function PoliticaPrivacidade() {
         </main>
       </div>
 
-      {/* Rodapé institucional sutil */}
-      <footer className="bg-white border-t border-slate-200 w-full py-8 text-center text-[11px] text-slate-400 space-y-1">
-        <p>Janete Produtos Naturais • CNPJ Coberto pelas Diretrizes de Privacidade e Qualidade</p>
-        <p>Araras - SP | Leme - SP | Todos os direitos reservados.</p>
-      </footer>
-
     </div>
   );
 }
