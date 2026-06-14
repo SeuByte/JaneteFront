@@ -18,76 +18,103 @@ function footer() {
 
 
 
-            <footer className="bg-[#147C06] text-white">
+            <div className='backG'>
 
-            <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
-            {/* Ajuda */}
-            <div>
-                <h2 className="font-bold text-xl mb-4">
-                AJUDA E SUPORTE
-                </h2>
+                <div className='footer-left'>
 
-                <ul className="space-y-2">
-                <li>Produtos e Ofertas</li>
-                <li>Dicas e Receitas</li>
-                <li>Sobre Nós</li>
-                </ul>
-            </div>
+                    <h2 className='text-amber-50 font-bold'>AJUDA E SUPORTE</h2>
+                    <li className='text-amber-50 mt-2 ml-2'>
+                        <ul className='text-amber-50'>Produtos e Ofertas</ul>
+                    </li>
 
-            {/* Localização */}
-            <div className="text-center">
+                    <li className='text-amber-50 mt-2 ml-2'>
+                        <ul className='text-amber-50'>Dicas e Receitas</ul>
+                    </li>
 
-                <a href="https://maps.app.goo.gl/qjCHX4U7MYBDjTjH9">
+                    <li className='text-amber-50 mt-2 ml-2'>
+                        <ul className='text-amber-50'>Sobre nós</ul>
+                    </li>
 
-                <img
-                    src="./MapaJanete.png"
-                    alt="Mapa"
-                    className="mx-auto rounded-lg w-full max-w-[280px]"
-                />
-
-                </a>
-
-                <p>Janete Produtos Naturais E-mail: comercial@janeteprodutosnaturais.com.br | Whatsapp Araras: (19) 98860-5981 | Leme: (19) 99916-4520</p>
-                <div className="flex justify-center items-center space-x-1 font-bold tracking-wider text-slate-300">
-                <span className="text-emerald-600 text-xs font-black">SeuByte &reg;</span> 
                 </div>
 
-            </div>
+                <div className='footer-center'>
 
-            {/* Coluna 3: Contato e Redes Sociais (Direita) */}
-                <div className='flex flex-col items-center md:items-end text-center md:text-right space-y-6 w-full'>
-                
-                {/* Bloco de Contato alinhado à direita */}
-                <div className='space-y-3 w-full flex flex-col items-center md:items-end'>
-                    <h2 className='text-white font-bold text-lg tracking-wide border-b-2 border-[#147C06] pb-1 w-fit'>
-                    CONTATO
-                    </h2>
-                    
-                    <div className='flex items-center md:flex-row-reverse gap-2 text-sm'>
-                    <img src="./emailIcon.png" alt="Email" className='w-4 h-4 md:ml-2' />
-                    <span>janete.naturais@gmail.com</span>
-                    </div>
+                    <a href="https://maps.app.goo.gl/qjCHX4U7MYBDjTjH9">
+                        <img src="./MapaJanete.png" alt="" className='maps' />
+                    </a>
 
-                    <div className='flex items-center md:flex-row-reverse gap-2 text-sm'>
-                    <img src="./telIcon.png" alt="Telefone" className='w-4 h-4 md:ml-2' />
-                    <span>(19) 98328-4729</span>
-                    </div>
+                    <p className='mt-5 text-1xl'>© 2026 Janete Produtos Naturais. Todos os direitos reservados.</p>
+
+                    <p className='mt-3'>CNPJ: 00.000.000/0001-00 | Rua Joaquim Pesito, 123 - Araras, SP.</p>
+
                 </div>
 
-                {/* Redes Sociais alinhadas à direita */}
-                <div className='pt-4 w-full flex flex-col items-center md:items-end border-t border-gray-800 md:border-t-0'>
-                    <h4 className='text-white font-semibold text-md mb-2'>Nos Siga</h4>
-                    <div className='flex items-center gap-4 bg-gray-900/50 p-2 rounded-lg px-4'>
-                    <img src="./Instaicon.png" alt="Instagram" className='w-6 h-6 hover:scale-110 transition-transform cursor-pointer' />
-                    <img src="./WhatsIcon.png" alt="WhatsApp" className='w-6 h-6 hover:scale-110 transition-transform cursor-pointer' />
-                    <img src="./faceIcon.png" alt="Facebook" className='w-6 h-6 hover:scale-110 transition-transform cursor-pointer' />
-                    </div>
-                </div>
 
+                <div className='footer-left'>
+
+                    <h2 className='text-amber-50 font-bold'>CONTATO</h2>
+
+                    <div className='flex justify-center items-center mt-3'>
+
+                        <img src="./emailIcon.png" alt="" className='w-5 h-5 mr-2' />
+
+                        <p className='text-amber-50'>janete.naturais@gmail.com</p>
+
+                    </div>
+
+
+                    <div className='flex justify-center items-center mt-2'>
+
+                        <img src="./telIcon.png" alt="" className='w-5 h-5 mr-2' />
+
+                        <p className='text-amber-50'>(19)98328-4729</p>
+
+                    </div>
+
+
+
+
+
+                    {/* O bloco da direita vira um flexbox vertical */}
+                    <div className='footer-right flex flex-col justify-between h-full min-h-[12rem]'>
+
+
+
+                        {/* O mt-auto cria um "pistão" dinâmico que empurra o bloco para o chão do footer, não importa o tamanho da tela */}
+                        <div className='divicons flex flex-col items-center mt-auto gap-2'>
+
+                            <h4 className='text-amber-50 font-medium text-2xl'>Nos Siga</h4>
+                            
+                            <div className='flex items-center gap-4'>
+                                <img src="./Instaicon.png" alt="Instagram" className='icns-insta' />
+                                <img src="./WhatsIcon.png" alt="WhatsApp" className='icns-whats' />
+                                <img src="./faceIcon.png" alt="Facebook" className='icns-face' />
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
             </div>
 
-            </footer>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         </> // Fecha fragment
 
