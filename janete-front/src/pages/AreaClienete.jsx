@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Certifique-se de instalar: npm install axios
 import { CookieBanner } from '../pages/PoliticaPrivacidade';
+import NavBar from '../components/Navbar'; 
+import Footer from '../components/Footer';
 
 // Instância do Axios
 const api = axios.create({
@@ -346,7 +348,7 @@ export default function AlterarDados() {
     try {
       if (idEnderecoEdicao) {
         await api.put(`/cliente/enderecos/${idEnderecoEdicao}`, novoEndereco);
-        alert('Endereço atualizado com sucesso!');
+        alert('Endereço updated com sucesso!');
       } else {
         await api.post('/cliente/enderecos', novoEndereco);
         alert('Endereço cadastrado com sucesso!');
@@ -437,6 +439,10 @@ export default function AlterarDados() {
   return (
     <div className="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between font-['Inter',_sans-serif]">
       
+      {/* 1. NAVBAR ADICIONADA NO TOPO */}
+      <NavBar />
+      
+      {/* Container principal ajustado para ocupar o espaço restante */}
       <div className="max-w-7xl w-full mx-auto px-4 py-8 flex-grow">
         
         <div className="text-center mb-6">
@@ -524,7 +530,6 @@ export default function AlterarDados() {
               <span>Alterar senha</span>
             </button>
             
-            {/* 4. TRANSFORMADO DE LINK PARA BUTTON (Sub-aba integrada) */}
             <button
               onClick={() => setAbaAtiva('alterarEmail')}
               className={`w-full flex items-center space-x-3 p-2.5 text-sm rounded text-left transition-colors
@@ -679,7 +684,7 @@ export default function AlterarDados() {
             {abaAtiva === 'valeCompra' && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Vale Comra
+                  Vale Compra
                 </h2>
 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
@@ -1039,7 +1044,7 @@ export default function AlterarDados() {
               </div>
             )}
 
-            {/* NOVA SUB-ABA INTEGRAÇÃO COMPLETA: ALTERAR SENHA */}
+            {/* ABA: ALTERAR SENHA */}
             {abaAtiva === 'alterarSenha' && (
               <div>
                 <h2 className="text-xl font-bold mb-6 text-gray-900">Alterar Minha Senha</h2>
@@ -1103,7 +1108,7 @@ export default function AlterarDados() {
               </div>
             )}
 
-            {/* 5. CONTEÚDO DA NOVA ABA: ALTERAR E-MAIL */}
+            {/* CONTEÚDO DA ABA: ALTERAR E-MAIL */}
             {abaAtiva === 'alterarEmail' && (
               <div>
                 <h2 className="text-xl font-bold mb-6 text-gray-900">
@@ -1364,6 +1369,9 @@ export default function AlterarDados() {
           </main>
         </div>
       </div>
+
+      {/* 2. FOOTER ADICIONADO NO RODAPÉ */}
+      <Footer />
 
     </div>
   );
