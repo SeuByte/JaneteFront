@@ -1,67 +1,47 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import bgImage from '../assets/BackGJanete.png'; // Referência de background do seu projeto
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Certifique-se de instalar: npm install axios
+import { CookieBanner } from '../pages/PoliticaPrivacidade';
 
-// --- FUNÇÕES AUXILIARES DE VALIDAÇÃO DE DOCUMENTOS ---
-const validarCPF = (cpf) => {
-  const limpo = cpf.replace(/\D/g, '');
-  if (limpo.length !== 11 || /^(\d)\1+$/.test(limpo)) return false;
-  
-  let soma = 0, resto;
-  for (let i = 1; i <= 9; i++) soma += parseInt(limpo.substring(i - 1, i)) * (11 - i);
-  resto = (soma * 10) % 11;
-  if ((resto === 10) || (resto === 11)) resto = 0;
-  if (resto !== parseInt(limpo.substring(9, 10))) return false;
-  
-  soma = 0;
-  for (let i = 1; i <= 10; i++) soma += parseInt(limpo.substring(i - 1, i)) * (12 - i);
-  resto = (soma * 10) % 11;
-  if ((resto === 10) || (resto === 11)) resto = 0;
-  if (resto !== parseInt(limpo.substring(10, 11))) return false;
-  
-  return true;
-};
+// Instância do Axios
+const api = axios.create({
+  baseURL: 'http://localhost:5173/cadastro2',
+  //baseURL: 'https://janeteprodutosnaturais.com.br/', // Substitua pela URL da sua API
+});
 
-const validarCNPJ = (cnpj) => {
-  const limpo = cnpj.replace(/\D/g, '');
-  if (limpo.length !== 14 || /^(\d)\1+$/.test(limpo)) return false;
-  
-  let tamanho = limpo.length - 2;
-  let numeros = limpo.substring(0, tamanho);
-  const digitos = limpo.substring(tamanho);
-  let soma = 0, pos = tamanho - 7;
-  
-  for (let i = tamanho; i >= 1; i--) {
-    soma += numeros.charAt(tamanho - i) * pos--;
-    if (pos < 2) pos = 9;
+// Adiciona o token de autenticação em cada requisição automaticamente
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-  if (resultado !== parseInt(digitos.charAt(0))) return false;
-  
-  tamanho = tamanho + 1;
-  numeros = limpo.substring(0, tamanho);
-  soma = 0;
-  pos = tamanho - 7;
-  for (let i = tamanho; i >= 1; i--) {
-    soma += numeros.charAt(tamanho - i) * pos--;
-    if (pos < 2) pos = 9;
-  }
-  resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-  if (resultado !== parseInt(digitos.charAt(1))) return false;
-  
-  return true;
-};
+  return config;
+});
 
-export default function CadastroJanete() {
-  // Estado para alternar estritamente entre as 3 telas das fotos: 1, 2 ou 3
-  const [passoAtivo, setPassoAtivo] = useState(1);
+export default function AlterarDados() {
+  const navigate = useNavigate();
+  const [abaAtiva, setAbaAtiva] = useState('ultimoPedido');
+  const [abaEndereco, setAbaEndereco] = useState('lista');
+  const [loading, setLoading] = useState(true);
+  const [carregandoPedidos, setCarregandoPedidos] = useState(false);
+  const [carregandoVales, setCarregandoVales] = useState(false);
+  const [carregandoEnderecos, setCarregandoEnderecos] = useState(false);
 
-  // Estados dos inputs baseados nas imagens
-  const [formData, setFormData] = useState({
-    perfil: '',
-    nomeCompleto: '',
-    cpf: '',
-    dataNascimento: '',
+  // Estados para os pedidos vindo do banco
+  const [pedidos, setPedidos] = useState([]);
+  const [ultimoPedido, setUltimoPedido] = useState(null);
+
+  // Estados para o Vale Compra
+  const [saldoVale, setSaldoVale] = useState(0);
+  const [valesCompra, setValesCompra] = useState([]);
+
+  // Estados para a Gestão de Endereços
+  const [enderecos, setEnderecos] = useState([]);
+  const [idEnderecoEdicao, setIdEnderecoEdicao] = useState(null); // Controla se estamos editando ou criando
+  const [novoEndereco, setNovoEndereco] = useState({
+    identificacao: '',
+    tipo: '',
+    destinatario: '',
     telefone: '',
     cep: '',
     endereco: '',
@@ -69,215 +49,1322 @@ export default function CadastroJanete() {
     complemento: '',
     bairro: '',
     cidade: '',
-    estado: '',
-    cobrancaIgual: true,
-    email: '',
-    senha: '',
-    termoAceite: true,
-    politicaPrivacidade: true
+    estado: ''
   });
 
+  // Estado unificado contendo os dados do cliente e endereço principal
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    cpf: '',
+    nascimento: '',
+    cep: '',
+    endereco: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: ''
+  });
+
+  // 1. ESTADO PARA ALTERAR SENHA
+  const [senhaData, setSenhaData] = useState({
+    senhaAtual: '',
+    novaSenha: '',
+    confirmarSenha: ''
+  });
+
+  // 1. ESTADO PARA ALTERAR E-MAIL
+  const [emailData, setEmailData] = useState({
+    emailAtual: '',
+    novoEmail: '',
+    confirmarEmail: ''
+  });
+
+  // Função para carregar o histórico de pedidos
+  const carregarPedidos = async () => {
+    try {
+      setCarregandoPedidos(true);
+      const response = await api.get('/cliente/pedidos');
+      console.log('Pedidos recebidos:', response.data);
+
+      const listaPedidos = response.data.pedidos || [];
+      setPedidos(listaPedidos);
+
+      if (listaPedidos.length > 0) {
+        setUltimoPedido(listaPedidos[0]);
+      } else {
+        setUltimoPedido(null);
+      }
+    } catch (error) {
+      console.error(error);
+      setPedidos([]);
+      setUltimoPedido(null);
+    } finally {
+      setCarregandoPedidos(false);
+    }
+  };
+
+  // Função para carregar os vales compra e saldo
+  const carregarValeCompra = async () => {
+    try {
+      setCarregandoVales(true);
+      const response = await api.get('/cliente/vale-compra');
+      setSaldoVale(response.data.saldo || 0);
+      setValesCompra(response.data.vales || []);
+    } catch (error) {
+      console.error('Erro ao carregar vale compra:', error);
+    } finally {
+      setCarregandoVales(false);
+    }
+  };
+
+  // Função para carregar endereços do MongoDB
+  const carregarEnderecos = async () => {
+    try {
+      setCarregandoEnderecos(true);
+      const response = await api.get('/cliente/enderecos');
+      setEnderecos(response.data.enderecos || []);
+    } catch(error){
+      console.error(error);
+      setEnderecos([]);
+      alert(error.response?.data?.mensagem || 'Erro ao carregar endereços');
+    } finally {
+      setCarregandoEnderecos(false);
+    }
+  };
+
+  // BUSCAR INFORMAÇÕES NO BANCO DE DADOS (Ao carregar a página)
+  useEffect(() => {
+    async function carregarDadosCliente() {
+      try {
+        setLoading(true);
+        
+        // Rota que retorna os dados do usuário logado baseado no Token
+        const response = await api.get('/cliente/perfil'); 
+        
+        // Mapeia os dados do banco para o estado do formulário
+        setFormData({
+          nome: response.data.nome || '',
+          email: response.data.email || '',
+          cpf: response.data.cpf || '',
+          nascimento: response.data.nascimento || '',
+          cep: response.data.cep || '',
+          endereco: response.data.endereco || '',
+          numero: response.data.numero || '',
+          complemento: response.data.complemento || '',
+          bairro: response.data.bairro || '',
+          cidade: response.data.cidade || '',
+          estado: response.data.estado || ''
+        });
+
+        // 2. Carrega o e-mail atual para o estado de alteração de e-mail
+        setEmailData(prev => ({
+          ...prev,
+          emailAtual: response.data.email || ''
+        }));
+
+        // Busca os pedidos e o saldo do vale compra aproveitando o carregamento inicial
+        await carregarPedidos();
+        await carregarValeCompra();
+
+      } catch (error) {
+        console.error('Erro ao buscar dados do cliente:', error);
+        alert('Sessão expirada ou erro ao carregar dados. Faça login novamente.');
+        navigate('/login');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    carregarDadosCliente();
+  }, [navigate]);
+
+  // Função auxiliar para buscar CEP automaticamente (Perfil Principal)
+  const buscarCEP = async (cepLimpo) => {
+    if (cepLimpo.length !== 8) return;
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await response.json();
+      if (!data.erro) {
+        setFormData((prev) => ({
+          ...prev,
+          endereco: data.logradouro || '',
+          bairro: data.bairro || '',
+          cidade: data.localidade || '',
+          estado: data.uf || '',
+        }));
+      }
+    } catch (error) {
+      console.error("Erro ao buscar o CEP:", error);
+    }
+  };
+
+  // Função auxiliar para buscar CEP automaticamente (Gestão de Endereços)
+  const buscarCEPEndereco = async (cepLimpo) => {
+    if (cepLimpo.length !== 8) return;
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await response.json();
+      if (!data.erro) {
+        setNovoEndereco((prev) => ({
+          ...prev,
+          endereco: data.logradouro || '',
+          bairro: data.bairro || '',
+          cidade: data.localidade || '',
+          estado: data.uf || '',
+        }));
+      }
+    } catch (error) {
+      console.error("Erro ao buscar o CEP do endereço:", error);
+    }
+  };
+
+  // Manipulador de inputs genérico para o formulário principal
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    let valor = value;
+
+    if (name === 'cep') {
+      valor = value
+        .replace(/\D/g, '')
+        .replace(/^(\d{5})(\d)/, '$1-$2')
+        .slice(0, 9);
+      
+      const cepLimpo = valor.replace(/\D/g, '');
+      if (cepLimpo.length === 8) {
+        buscarCEP(cepLimpo);
+      }
+    }
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: valor
     }));
   };
 
-  // Cabeçalho padronizado contendo o título idêntico ao das imagens
-  const HeaderCadastro = () => (
-    <div className="w-full flex flex-col items-center mb-6">
-      <img
-        src="/JaneteIcon.png"
-        alt="Janete Icon"
-        className="mb-4 h-24 w-24 rounded-full border border-[#309A20] bg-white object-cover"
-      />
-      <h2 className="text-xl font-bold text-slate-800 mb-4">Primeiro Acesso? Cadastre-se</h2>
-      
-      {/* Abas superiores de progresso */}
-      <div className="flex w-full justify-center space-x-4 border-b border-slate-200 pb-3 text-xs font-semibold text-slate-400">
-        <span className={passoAtivo === 1 ? 'text-[#19b623] border-b-2 border-[#19b623] pb-3 -mb-3.5 font-bold' : ''}>Informações Pessoais</span>
-        <span className={passoAtivo === 2 ? 'text-[#19b623] border-b-2 border-[#19b623] pb-3 -mb-3.5 font-bold' : ''}>Endereço</span>
-        <span className={passoAtivo === 3 ? 'text-[#19b623] border-b-2 border-[#19b623] pb-3 -mb-3.5 font-bold' : ''}>Crie sua conta</span>
-      </div>
-    </div>
-  );
+  // Manipulador de inputs para a sub-aba Novo/Editar Endereço
+  const handleEnderecoChange = (e) => {
+    const { name, value } = e.target;
+    let valor = value;
 
-  // Classes utilitárias compartilhadas vindas dos estilos de formatação do seu front-end
-  const inputStyle = "w-full rounded-full border border-lime-400 bg-white px-5 py-2.5 text-start text-sm text-slate-800 outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-200";
-  const labelStyle = "block text-center text-sm font-semibold text-[#19b623] mb-1";
+    if (name === 'cep') {
+      valor = value
+        .replace(/\D/g, '')
+        .replace(/^(\d{5})(\d)/, '$1-$2')
+        .slice(0, 9);
+      
+      const cepLimpo = valor.replace(/\D/g, '');
+      if (cepLimpo.length === 8) {
+        buscarCEPEndereco(cepLimpo);
+      }
+    }
+
+    setNovoEndereco((prev) => ({
+      ...prev,
+      [name]: valor
+    }));
+  };
+
+  // FUNÇÃO PARA ATUALIZAR OS DADOS NO BANCO
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put('/cliente/atualizar', formData);
+      alert('Dados cadastrais updated com sucesso!');
+    } catch (error) {
+      console.error('Erro ao atualizar dados:', error);
+      alert(error.response?.data?.mensagem || 'Erro ao salvar alterações.');
+    }
+  };
+
+  // 2. FUNÇÃO PARA ALTERAR SENHA NO BANCO
+  const alterarSenha = async (e) => {
+    e.preventDefault();
+
+    if (senhaData.novaSenha !== senhaData.confirmarSenha) {
+      alert('As senhas não coincidem.');
+      return;
+    }
+
+    try {
+      const response = await api.put('/cliente/alterar-senha', {
+        senhaAtual: senhaData.senhaAtual,
+        novaSenha: senhaData.novaSenha
+      });
+
+      alert(response.data.mensagem || 'Senha alterada com sucesso!');
+      
+      setSenhaData({
+        senhaAtual: '',
+        novaSenha: '',
+        confirmarSenha: ''
+      });
+      setAbaAtiva('ultimoPedido'); // Redireciona para o início da dashboard
+    } catch (error) {
+      alert(error.response?.data?.mensagem || 'Erro ao alterar senha.');
+    }
+  };
+
+  // 3. FUNÇÃO PARA ALTERAR E-MAIL NO BANCO
+  const alterarEmail = async (e) => {
+    e.preventDefault();
+
+    if (emailData.novoEmail !== emailData.confirmarEmail) {
+      alert('Os e-mails não coincidem.');
+      return;
+    }
+
+    try {
+      const response = await api.put('/cliente/alterar-email', {
+        novoEmail: emailData.novoEmail
+      });
+
+      alert(response.data.mensagem || 'E-mail alterado com sucesso!');
+
+      // Atualiza o formulário principal e o e-mail atual em tela simultaneamente
+      setFormData(prev => ({
+        ...prev,
+        email: emailData.novoEmail
+      }));
+
+      setEmailData({
+        emailAtual: emailData.novoEmail,
+        novoEmail: '',
+        confirmarEmail: ''
+      });
+
+      setAbaAtiva('ultimoPedido');
+    } catch (error) {
+      alert(error.response?.data?.mensagem || 'Erro ao alterar e-mail.');
+    }
+  };
+
+  // FUNÇÕES DE GESTÃO DE ENDEREÇOS
+  const salvarEndereco = async (e) => {
+    e.preventDefault();
+    try {
+      if (idEnderecoEdicao) {
+        await api.put(`/cliente/enderecos/${idEnderecoEdicao}`, novoEndereco);
+        alert('Endereço atualizado com sucesso!');
+      } else {
+        await api.post('/cliente/enderecos', novoEndereco);
+        alert('Endereço cadastrado com sucesso!');
+      }
+      resetarFormEndereco();
+      carregarEnderecos();
+      setAbaEndereco('lista');
+    } catch (error) {
+      console.error('Erro ao salvar endereço:', error);
+      alert(error.response?.data?.mensagem || 'Erro ao salvar endereço.');
+    }
+  };
+
+  const editarEndereco = (endereco) => {
+    setIdEnderecoEdicao(endereco._id);
+    setNovoEndereco({
+      identificacao: endereco.identificacao || '',
+      tipo: endereco.tipo || '',
+      destinatario: endereco.destinatario || '',
+      telefone: endereco.telefone || '',
+      cep: endereco.cep || '',
+      endereco: endereco.endereco || '',
+      numero: endereco.numero || '',
+      complemento: endereco.complemento || '',
+      bairro: endereco.bairro || '',
+      cidade: endereco.cidade || '',
+      estado: endereco.estado || ''
+    });
+    setAbaEndereco('novo');
+  };
+
+  const excluirEndereco = async (id) => {
+    if (!window.confirm('Tem certeza que deseja excluir este endereço?')) return;
+    try {
+      await api.delete(`/cliente/enderecos/${id}`);
+      alert('Endereço excluído com sucesso!');
+      carregarEnderecos();
+    } catch (error) {
+      console.error('Erro ao excluir endereço:', error);
+      alert('Erro ao excluir endereço.');
+    }
+  };
+
+  const alterarTipoUsoEndereco = async (id, tipoUso) => {
+    try {
+      await api.put(`/cliente/enderecos/${id}`, { [tipoUso]: true });
+      carregarEnderecos();
+    } catch (error) {
+      console.error(`Erro ao definir endereço como ${tipoUso}:`, error);
+    }
+  };
+
+  const resetarFormEndereco = () => {
+    setIdEnderecoEdicao(null);
+    setNovoEndereco({
+      identificacao: '',
+      tipo: '',
+      destinatario: '',
+      telefone: '',
+      cep: '',
+      endereco: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      cidade: '',
+      estado: ''
+    });
+  };
+
+  // FUNÇÃO DE LOGOUT
+  const handleLogout = () => {
+    const confirmarSaida = window.confirm('Deseja realmente sair?');
+    
+    if (confirmarSaida) {
+      localStorage.removeItem('token');
+      navigate('/'); // Redireciona para a tela de Home (raiz)
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-gray-500 font-medium">Carregando seus dados...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen w-full grid place-items-center bg-no-repeat bg-center bg-cover p-4 font-sans antialiased" style={{ backgroundImage: `url(${bgImage})` }}>
+    <div className="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between font-['Inter',_sans-serif]">
       
-      {/* Container adaptado do formato do seu LoginPage/CadastroCliente */}
-      <div className="w-full max-w-3xl min-h-[70vh] rounded-[3rem] bg-white/95 p-8 md:p-12 shadow-[0_0.5rem_1.5rem_#ffaa0b] flex flex-col justify-between">
+      <div className="max-w-7xl w-full mx-auto px-4 py-8 flex-grow">
         
-        <div>
-          {/* PASSO 1: INFORMAÇÕES PESSOAIS (Foto 8c63acbc-341b-4183-9cb8-a6ed7b65d22d.jpg) */}
-          {passoAtivo === 1 && (
-            <div>
-              <HeaderCadastro />
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
-                <div>
-                  <label className={labelStyle}>Perfil*</label>
-                  <select name="perfil" value={formData.perfil} onChange={handleChange} className={`${inputStyle} text-center pl-8`}>
-                    <option>Pessoa Física</option>
-                    <option>Pessoa Jurídica</option>
-                  </select>
-                </div>
-                                
-                <div>
-                <label className={labelStyle}>CNPJ/CPF*</label>
-                <input 
-                  type="text" // Mudado de number para text
-                  name="cnpjCpf" 
-                  placeholder="000.000.000-00 ou 00.000.000/0001-00" 
-                  value={formData.cnpjCpf} // Ajustado o nome para refletir ambos
-                  onChange={handleChange} 
-                  maxLength={18} // Limita o tamanho máximo com máscara
-                  className={inputStyle} 
-                  required
-                />
-              </div>
-
-                <div>
-                  <label className={labelStyle}>Nome Completo*</label>
-                  <input type="text" name="nomeCompleto" placeholder="Nome Completo" value={formData.nomeCompleto} onChange={handleChange} className={inputStyle } />
-                </div>
-
-                <div>
-                  <label className={labelStyle}>Data de Nascimento*</label>
-                  <input type="date" name="dataNascimento" placeholder="dd/mm/aaaa" value={formData.dataNascimento} onChange={handleChange} className={inputStyle} />
-                </div>
-                <div>
-                  <label className={labelStyle}>Telefone*</label>
-                  <input type="text" name="telefone" placeholder="(00) 00000-0000" value={formData.telefone} onChange={handleChange} className={inputStyle} />
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-10">
-                <Link to="/" className="w-full max-w-xs h-12 flex items-center justify-center rounded-full border border-slate-400 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition tracking-wide">
-                  CANCELAR
-                </Link>
-                <button onClick={() => setSetPassoAtivo(2)} className="w-full max-w-xs h-12 rounded-full bg-[#2fb21e] text-white font-semibold text-sm hover:bg-[#1e8716] transition tracking-wide">
-                  PRÓXIMO
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* PASSO 2: ENDEREÇO (Foto c7c86253-981e-465b-b53d-b1684c0cbae7.jpg) */}
-          {passoAtivo === 2 && (
-            <div>
-              <HeaderCadastro />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <div className="md:col-span-1">
-                  <label className={labelStyle}>CEP*</label>
-                  <input type="text" name="cep" value={formData.cep} onChange={handleChange} className={inputStyle} />
-                </div>
-                <div className="md:col-span-2 flex items-center justify-center md:justify-start pt-5">
-                  <a href="#cep" className="text-xs text-blue-500 font-medium hover:underline">Não sabe o seu CEP? Consulte Aqui</a>
-                </div>
-
-                <div className="md:col-span-3">
-                  <label className={labelStyle}>Endereço*</label>
-                  <input type="text" name="endereco" value={formData.endereco} onChange={handleChange} className={inputStyle} />
-                </div>
-
-                <div>
-                  <label className={labelStyle}>Número*</label>
-                  <input type="text" name="numero" value={formData.numero} onChange={handleChange} className={`${inputStyle} !bg-gray-50 font-bold`} />
-                </div>
-                <div>
-                  <label className={labelStyle}>Complemento</label>
-                  <input type="text" name="complemento" placeholder="Complemento" value={formData.complemento} onChange={handleChange} className={inputStyle} />
-                </div>
-                <div>
-                  <label className={labelStyle}>Bairro*</label>
-                  <input type="text" name="bairro" value={formData.bairro} onChange={handleChange} className={inputStyle} />
-                </div>
-
-                <div>
-                  <label className={labelStyle}>Cidade*</label>
-                  <input type="text" name="cidade" value={formData.cidade} onChange={handleChange} className={inputStyle} />
-                </div>
-                <div className="md:col-span-2">
-                  <label className={labelStyle}>Estado*</label>
-                  <select name="estado" value={formData.estado} onChange={handleChange} className={`${inputStyle} text-center pl-8`}>
-                    <option>São Paulo</option>
-                    <option>Rio de Janeiro</option>
-                    <option>Minas Gerais</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="mt-5 flex items-center justify-center">
-                <input type="checkbox" id="cobrancaIgual" name="cobrancaIgual" checked={formData.cobrancaIgual} onChange={handleChange} className="h-4 w-4 text-[#2fb21e] border-lime-400 rounded focus:ring-lime-200" />
-                <label htmlFor="cobrancaIgual" className="ml-2 text-xs font-medium text-slate-600">O endereço de cobrança é o mesmo que o endereço de entrega?</label>
-              </div>
-
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
-                <button onClick={() => setPassoAtivo(1)} className="w-full max-w-xs h-12 rounded-full border border-slate-400 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition tracking-wide">
-                  ANTERIOR
-                </button>
-                <button onClick={() => setPassoAtivo(3)} className="w-full max-w-xs h-12 rounded-full bg-[#2fb21e] text-white font-semibold text-sm hover:bg-[#1e8716] transition tracking-wide">
-                  PRÓXIMO
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* PASSO 3: CRIE SUA CONTA (Foto d47ff2b2-e270-4570-bb73-b9e66a429e9a.jpg) */}
-          {passoAtivo === 3 && (
-            <div className="flex flex-col items-center">
-              <HeaderCadastro />
-              
-              <div className="w-full max-w-md space-y-4 mt-6">
-                <div>
-                  <label className={labelStyle}>Email*</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={`${inputStyle} text-slate-400 bg-slate-50 cursor-not-allowed`} disabled />
-                </div>
-
-                <div>
-                  <label className={labelStyle}>Senha*</label>
-                  <input type="password" name="senha" placeholder="........." value={formData.senha} onChange={handleChange} className={inputStyle} />
-                </div>
-
-                <div className="pt-2 space-y-2 flex flex-col items-center text-center">
-                  <div className="flex items-center">
-                    <input type="checkbox" id="termoAceite" name="termoAceite" checked={formData.termoAceite} onChange={handleChange} className="h-4 w-4 text-[#2fb21e] border-lime-400 rounded" />
-                    <label htmlFor="termoAceite" className="ml-2 text-xs text-slate-600">Li e concordo com o <span className="font-bold underline cursor-pointer text-[#19b623]">termo de aceite?*</span></label>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" id="politicaPrivacidade" name="politicaPrivacidade" checked={formData.politicaPrivacidade} onChange={handleChange} className="h-4 w-4 text-[#2fb21e] border-lime-400 rounded" />
-                    <label htmlFor="politicaPrivacidade" className="ml-2 text-xs text-slate-600">Li e concordo com a <span className="font-bold underline cursor-pointer text-[#19b623]">Política de Privacidade</span></label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="w-full flex flex-col sm:flex-row justify-center items-center gap-4 mt-10">
-                <button onClick={() => setPassoAtivo(2)} className="w-full max-w-xs h-12 rounded-full border border-slate-400 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition tracking-wide">
-                  ANTERIOR
-                </button>
-                <Link to="/home" className="w-full max-w-xs h-12 flex items-center justify-center rounded-full bg-[#2fb21e] text-white font-semibold text-sm hover:bg-[#1e8716] transition tracking-wide">
-                  CADASTRAR
-                </Link>
-              </div>
-            </div>
-          )}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Minha Conta</h1>
         </div>
 
-        {/* RODAPÉ DO SEU SITE INTEGRADO COM TEXTO REAL */}
-        <footer className="w-full text-center mt-8 pt-4 border-t border-slate-200 text-[10px] text-slate-400 space-y-1">
-          <p>Janete Produtos Naturais E-mail: comercial@janeteprodutosnaturais.com.br | Whatsapp Araras: (19) 98860-5981 | Leme: (19) 99916-4520</p>
-          <div className="flex justify-center items-center space-x-1 font-bold tracking-wider text-slate-300">
-            <span className="text-emerald-600 text-xs font-black">SeuByte &reg;</span> 
-          </div>
-        </footer>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
+          
+          {/* Menu Lateral */}
+          <aside className="md:col-span-1 border-r border-gray-200 pr-4 space-y-1">
+            <button
+              onClick={() => setAbaAtiva('ultimoPedido')}
+              className={`w-full flex items-center space-x-3 p-2.5 text-sm rounded text-left transition-colors
+              ${abaAtiva === 'ultimoPedido'
+                ? 'font-bold bg-gray-100 border-l-4 border-gray-900 text-gray-900'
+                : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <span className="text-lg">☀️</span>
+              <span>Último pedido</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setAbaAtiva('pedidos');
+                carregarPedidos();
+              }}
+              className={`w-full flex items-center space-x-3 p-2.5 text-sm rounded text-left transition-colors
+              ${abaAtiva === 'pedidos'
+                ? 'font-bold bg-gray-100 border-l-4 border-gray-900 text-gray-900'
+                : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <span className="text-lg">📄</span>
+              <span>Consultar meus pedidos</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setAbaAtiva('valeCompra');
+                carregarValeCompra();
+              }}
+              className={`w-full flex items-center space-x-3 p-2.5 text-sm rounded text-left transition-colors
+              ${abaAtiva === 'valeCompra'
+                ? 'font-bold bg-gray-100 border-l-4 border-gray-900 text-gray-900'
+                : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <span className="text-lg">💰</span>
+              <span>Vale Compra</span>
+            </button>
+            
+            <button
+              onClick={() => setAbaAtiva('pessoais')}
+              className={`w-full flex items-center space-x-3 p-2.5 text-sm rounded text-left transition-colors
+              ${(abaAtiva === 'pessoais' || abaAtiva === 'endereco')
+                ? 'font-bold bg-gray-100 border-l-4 border-gray-900 text-gray-900'
+                : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <span className="text-lg">📝</span>
+              <span>Alterar dados cadastrais</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setAbaAtiva('enderecos');
+                resetarFormEndereco();
+                carregarEnderecos();
+                setAbaEndereco('lista');
+              }}
+              className={`w-full flex items-center space-x-3 p-2.5 text-sm rounded text-left transition-colors
+              ${abaAtiva === 'enderecos'
+                ? 'font-bold bg-gray-100 border-l-4 border-gray-900 text-gray-900'
+                : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <span className="text-lg">📍</span>
+              <span>Gestão de Endereços</span>
+            </button>
+            
+            <button
+              onClick={() => setAbaAtiva('alterarSenha')}
+              className={`w-full flex items-center space-x-3 p-2.5 text-sm rounded text-left transition-colors
+              ${abaAtiva === 'alterarSenha'
+                ? 'font-bold bg-gray-100 border-l-4 border-gray-900 text-gray-900'
+                : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <span className="text-lg">🔒</span>
+              <span>Alterar senha</span>
+            </button>
+            
+            {/* 4. TRANSFORMADO DE LINK PARA BUTTON (Sub-aba integrada) */}
+            <button
+              onClick={() => setAbaAtiva('alterarEmail')}
+              className={`w-full flex items-center space-x-3 p-2.5 text-sm rounded text-left transition-colors
+              ${abaAtiva === 'alterarEmail'
+                ? 'font-bold bg-gray-100 border-l-4 border-gray-900 text-gray-900'
+                : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <span className="text-lg">✉️</span>
+              <span>Alterar e-mail</span>
+            </button>
+            
+            <button 
+              onClick={handleLogout} 
+              className="w-full flex items-center space-x-3 p-2.5 text-sm text-red-600 hover:bg-red-50 rounded transition-colors text-left"
+            >
+              <span className="text-lg">🚪</span>
+              <span>Desconectar</span>
+            </button>
+          </aside>
 
+          {/* Área Principal de Conteúdo */}
+          <main className="md:col-span-3 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            
+            {/* Abas Superiores (Dados Cadastrais) */}
+            {(abaAtiva === 'pessoais' || abaAtiva === 'endereco') && (
+              <div className="flex space-x-6 border-b border-gray-200 mb-6">
+                <button 
+                  type="button"
+                  onClick={() => setAbaAtiva('pessoais')}
+                  className={`pb-2 text-sm font-semibold focus:outline-none transition-colors ${
+                    abaAtiva === 'pessoais' 
+                      ? 'text-green-700 border-b-2 border-green-700' 
+                      : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  Informações Pessoais
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setAbaAtiva('endereco')}
+                  className={`pb-2 text-sm font-medium focus:outline-none transition-colors ${
+                    abaAtiva === 'endereco' 
+                      ? 'text-green-700 border-b-2 border-green-700 font-semibold' 
+                      : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  Endereço
+                </button>
+              </div>
+            )}
+
+            {/* ABA: ÚLTIMO PEDIDO */}
+            {abaAtiva === 'ultimoPedido' && (
+              <div className="bg-white">
+                <h2 className="text-xl font-bold mb-6 text-gray-900">Último Pedido</h2>
+                {!ultimoPedido ? (
+                  <div className="bg-gray-100 p-4 rounded text-gray-600">
+                    Nenhum pedido encontrado!
+                  </div>
+                ) : (
+                  <div className="space-y-4 border border-gray-200 p-5 rounded-lg max-w-md">
+                    <div>
+                      <span className="text-gray-500 text-sm block">Número do Pedido</span>
+                      <strong className="text-lg text-gray-900">#{ultimoPedido.numero_pedido || ultimoPedido.numero}</strong>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                      <div>
+                        <span className="text-gray-500 text-xs block">Data</span>
+                        <strong className="text-sm text-gray-800">{ultimoPedido.data_pedido || ultimoPedido.data}</strong>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 text-xs block">Status</span>
+                        <span className="inline-block bg-green-100 text-green-800 text-xs font-bold px-2 py-0.5 rounded mt-0.5">
+                          {ultimoPedido.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="pt-3 border-t border-gray-100 flex justify-between items-center">
+                      <span className="text-gray-500 text-sm">Total do Pedido</span>
+                      <strong className="text-xl text-orange-600">
+                        R$ {typeof ultimoPedido.total === 'number' ? ultimoPedido.total.toFixed(2) : ultimoPedido.total}
+                      </strong>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ABA: HISTÓRICO DE PEDIDOS */}
+            {abaAtiva === 'pedidos' && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-8">
+                  Histórico de Pedidos
+                </h2>
+
+                {carregandoPedidos ? (
+                  <div className="bg-gray-100 p-4 rounded text-center text-gray-600">
+                    Carregando pedidos...
+                  </div>
+                ) : pedidos.length === 0 ? (
+                  <div className="bg-gray-100 p-4 rounded text-center font-semibold text-gray-600">
+                    Nenhum pedido encontrado!
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-200 min-w-[600px]">
+                      <thead>
+                        <tr className="bg-gray-100 border-b border-gray-200">
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Pedido</th>
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Valor</th>
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pedidos.map((pedido) => (
+                          <tr key={pedido.id || pedido.numero_pedido} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                            <td className="p-3 text-sm font-bold text-gray-900">
+                              #{pedido.numero_pedido || pedido.numero}
+                            </td>
+                            <td className="p-3 text-sm text-gray-600">
+                              {pedido.data_pedido || pedido.data}
+                            </td>
+                            <td className="p-3 text-sm">
+                              <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-0.5 rounded">
+                                {pedido.status}
+                              </span>
+                            </td>
+                            <td className="p-3 text-sm font-bold text-gray-800">
+                              R$ {typeof pedido.total === 'number' ? Number(pedido.total).toFixed(2) : pedido.total}
+                            </td>
+                            <td className="p-3 text-sm">
+                              <button
+                                type="button"
+                                className="bg-green-600 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-green-700 transition-colors"
+                                onClick={() => alert(`Visualizando pedido ${pedido.numero_pedido || pedido.numero}`)}
+                              >
+                                Visualizar
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ABA: VALE COMPRA */}
+            {abaAtiva === 'valeCompra' && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  Vale Comra
+                </h2>
+
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                  <p className="text-gray-500 text-sm font-medium">Saldo disponível</p>
+                  <h3 className="text-4xl font-bold text-green-700 mt-2">
+                    R$ {typeof saldoVale === 'number' ? saldoVale.toFixed(2) : parseFloat(saldoVale).toFixed(2)}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Ganhe 1% de volta em todas as compras aprovadas ("Pago" ou "Entregue"). <br />
+                    Validade dos créditos: 30 dias a partir da data de geração.
+                  </p>
+                </div>
+
+                {carregandoVales ? (
+                  <div className="bg-gray-100 p-4 rounded text-center text-gray-600">
+                    Carregando extrato de vales...
+                  </div>
+                ) : valesCompra.length === 0 ? (
+                  <div className="bg-gray-100 p-4 rounded text-center text-gray-600 font-medium">
+                    Nenhum vale compra disponível no momento.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-200 min-w-[500px]">
+                      <thead>
+                        <tr className="bg-gray-100 border-b border-gray-200">
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Pedido</th>
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Valor Compra</th>
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Crédito (1%)</th>
+                          <th className="p-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Expira em</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {valesCompra.map((vale) => (
+                          <tr key={vale._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                            <td className="p-3 text-sm font-medium text-gray-900">
+                              #{vale.pedidoId}
+                            </td>
+                            <td className="p-3 text-sm text-gray-600">
+                              R$ {Number(vale.valorCompra).toFixed(2)}
+                            </td>
+                            <td className="p-3 text-sm text-green-700 font-bold">
+                              + R$ {Number(vale.valorCredito).toFixed(2)}
+                            </td>
+                            <td className="p-3 text-sm text-gray-600">
+                              {new Date(vale.dataExpiracao).toLocaleDateString('pt-BR')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* GESTÃO DE ENDEREÇOS */}
+            {abaAtiva === 'enderecos' && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Gestão de Endereços</h2>
+                
+                <div className="flex border-b mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setAbaEndereco('lista')}
+                    className={`pb-3 px-4 transition-colors text-sm focus:outline-none ${
+                      abaEndereco === 'lista'
+                        ? 'border-b-2 border-green-700 text-green-700 font-bold'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Lista de Endereços
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (abaEndereco !== 'novo') resetarFormEndereco();
+                      setAbaEndereco('novo');
+                    }}
+                    className={`pb-3 px-4 transition-colors text-sm focus:outline-none ${
+                      abaEndereco === 'novo'
+                        ? 'border-b-2 border-green-700 text-green-700 font-bold'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {idEnderecoEdicao ? 'Editar Endereço' : 'Novo Endereço'}
+                  </button>
+                </div>
+
+                {abaEndereco === 'lista' && (
+                  <div>
+                    {carregandoEnderecos ? (
+                      <div className="bg-gray-100 p-4 rounded text-center text-gray-600">
+                        Carregando seus endereços...
+                      </div>
+                    ) : enderecos.length === 0 ? (
+                      <div className="bg-gray-100 p-4 rounded text-gray-600 text-center font-medium">
+                        Nenhum endereço cadastrado.
+                      </div>
+                    ) : (
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {enderecos.map((endereco) => (
+                          <div key={endereco._id} className="bg-white border border-gray-200 rounded-lg shadow-sm p-5 flex flex-col justify-between">
+                            <div>
+                              <div className="flex justify-between items-start mb-2">
+                                <h3 className="font-bold uppercase text-gray-900 text-sm">
+                                  {endereco.destinatario}
+                                </h3>
+                                {endereco.identificacao && (
+                                  <span className="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                                    {endereco.identificacao} ({endereco.tipo || 'Geral'})
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-sm text-gray-600 space-y-0.5">
+                                <p>{endereco.endereco}, {endereco.numero}</p>
+                                {endereco.complemento && <p className="text-xs italic">Comp: {endereco.complemento}</p>}
+                                <p>{endereco.bairro}</p>
+                                <p>{endereco.cidade} - {endereco.estado}</p>
+                                <p className="font-medium text-gray-800 mt-1">CEP: {endereco.cep}</p>
+                                {endereco.telefone && <p className="text-xs">Tel: {endereco.telefone}</p>}
+                              </div>
+                            </div>
+
+                            <div>
+                              <div className="grid grid-cols-2 gap-3 mt-5">
+                                <button 
+                                  type="button"
+                                  onClick={() => alterarTipoUsoEndereco(endereco._id, 'entrega')}
+                                  className={`rounded py-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
+                                    endereco.entrega 
+                                      ? 'bg-green-700 text-white shadow-sm' 
+                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                  }`}
+                                >
+                                  {endereco.entrega ? '✓ Entrega Padrão' : 'Definir Entrega'}
+                                </button>
+
+                                <button 
+                                  type="button"
+                                  onClick={() => alterarTipoUsoEndereco(endereco._id, 'cobranca')}
+                                  className={`rounded py-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
+                                    endereco.cobranca 
+                                      ? 'bg-blue-700 text-white shadow-sm' 
+                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                  }`}
+                                >
+                                  {endereco.cobranca ? '✓ Cobrança Padrão' : 'Definir Cobrança'}
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100">
+                                <button
+                                  type="button"
+                                  className="border border-gray-300 rounded py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                  onClick={() => editarEndereco(endereco)}
+                                >
+                                  Editar
+                                </button>
+                                <button
+                                  type="button"
+                                  className="border border-red-200 text-red-600 rounded py-1.5 text-xs font-medium hover:bg-red-50 transition-colors"
+                                  onClick={() => excluirEndereco(endereco._id)}
+                                >
+                                  Excluir
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {abaEndereco === 'novo' && (
+                  <form onSubmit={salvarEndereco} className="space-y-5">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Identificação (Ex: Minha Casa, Trabalho)</label>
+                        <input
+                          type="text"
+                          name="identificacao"
+                          value={novoEndereco.identificacao}
+                          onChange={handleEnderecoChange}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                          placeholder="Ex: Apartamento, Escritório"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Tipo do Endereço</label>
+                        <select
+                          name="tipo"
+                          value={novoEndereco.tipo}
+                          onChange={handleEnderecoChange}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm bg-white"
+                        >
+                          <option value="">Selecione</option>
+                          <option value="Casa">Casa</option>
+                          <option value="Trabalho">Trabalho</option>
+                          <option value="Outro">Outro</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Destinatário *</label>
+                        <input
+                          type="text"
+                          name="destinatario"
+                          value={novoEndereco.destinatario}
+                          onChange={handleEnderecoChange}
+                          required
+                          placeholder="Nome de quem vai receber"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Telefone de Contato *</label>
+                        <input
+                          type="text"
+                          name="telefone"
+                          value={novoEndereco.telefone}
+                          onChange={handleEnderecoChange}
+                          required
+                          placeholder="(00) 00000-0000"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                      <div className="w-full md:w-1/3">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">CEP *</label>
+                        <input
+                          type="text"
+                          name="cep"
+                          value={novoEndereco.cep}
+                          onChange={handleEnderecoChange}
+                          maxLength={9}
+                          required
+                          placeholder="00000-000"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+                      <div className="pt-2">
+                        <a href="https://buscacepinter.correios.com.br/" target="_blank" rel="noopener noreferrer" className="text-xs text-green-700 font-medium hover:underline">
+                          Não sabe o seu CEP? <span className="underline font-semibold">Consulte Aqui.</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">Endereço *</label>
+                      <input
+                        type="text"
+                        name="endereco"
+                        value={novoEndereco.endereco}
+                        onChange={handleEnderecoChange}
+                        required
+                        placeholder="Rua, Avenida, Praça..."
+                        className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm uppercase"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Número *</label>
+                        <input
+                          type="text"
+                          name="numero"
+                          value={novoEndereco.numero}
+                          onChange={handleEnderecoChange}
+                          required
+                          placeholder="Nº"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Complemento</label>
+                        <input
+                          type="text"
+                          name="complemento"
+                          value={novoEndereco.complemento}
+                          onChange={handleEnderecoChange}
+                          placeholder="Apto, Bloco, Fundo (Opcional)"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Bairro *</label>
+                        <input
+                          type="text"
+                          name="bairro"
+                          value={novoEndereco.bairro}
+                          onChange={handleEnderecoChange}
+                          required
+                          placeholder="Bairro"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm uppercase"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Cidade *</label>
+                        <input
+                          type="text"
+                          name="cidade"
+                          value={novoEndereco.cidade}
+                          onChange={handleEnderecoChange}
+                          required
+                          placeholder="Cidade"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm uppercase"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Estado *</label>
+                        <input
+                          type="text"
+                          name="estado"
+                          value={novoEndereco.estado}
+                          onChange={handleEnderecoChange}
+                          required
+                          placeholder="Ex: SP ou São Paulo"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          resetarFormEndereco();
+                          setAbaEndereco('lista');
+                        }}
+                        className="px-6 py-2.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="bg-orange-600 hover:bg-orange-700 text-white px-10 py-2.5 rounded font-bold text-sm uppercase tracking-wider shadow-sm"
+                      >
+                        {idEnderecoEdicao ? 'SALVAR ALTERAÇÕES' : 'SALVAR ENDEREÇO'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* NOVA SUB-ABA INTEGRAÇÃO COMPLETA: ALTERAR SENHA */}
+            {abaAtiva === 'alterarSenha' && (
+              <div>
+                <h2 className="text-xl font-bold mb-6 text-gray-900">Alterar Minha Senha</h2>
+                
+                <form onSubmit={alterarSenha} className="space-y-5 max-w-md">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Senha Atual *</label>
+                    <input
+                      type="password"
+                      value={senhaData.senhaAtual}
+                      onChange={(e) => setSenhaData({ ...senhaData, senhaAtual: e.target.value })}
+                      required
+                      placeholder="Sua senha atual aqui"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Nova Senha *</label>
+                    <input
+                      type="password"
+                      value={senhaData.novaSenha}
+                      onChange={(e) => setSenhaData({ ...senhaData, novaSenha: e.target.value })}
+                      required
+                      placeholder="Nova senha (mínimo 6 caracteres)"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Confirmar Nova Senha *</label>
+                    <input
+                      type="password"
+                      value={senhaData.confirmarSenha}
+                      onChange={(e) => setSenhaData({ ...senhaData, confirmarSenha: e.target.value })}
+                      required
+                      placeholder="Confirme sua nova senha"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                    />
+                  </div>
+
+                  <div className="flex flex-col md:flex-row justify-between items-center pt-4 space-y-3 md:space-y-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSenhaData({ senhaAtual: '', novaSenha: '', confirmarSenha: '' });
+                        setAbaAtiva('ultimoPedido');
+                      }}
+                      className="w-full md:w-auto px-8 py-2.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 text-white px-10 py-2.5 rounded font-bold text-sm uppercase tracking-wider shadow-sm transition-colors"
+                    >
+                      MUDAR SENHA
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* 5. CONTEÚDO DA NOVA ABA: ALTERAR E-MAIL */}
+            {abaAtiva === 'alterarEmail' && (
+              <div>
+                <h2 className="text-xl font-bold mb-6 text-gray-900">
+                  Alterar E-mail
+                </h2>
+
+                <form onSubmit={alterarEmail} className="space-y-5 max-w-md">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">
+                      E-mail Atual
+                    </label>
+                    <input
+                      type="email"
+                      value={emailData.emailAtual}
+                      disabled
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md bg-gray-100 text-gray-500 text-sm cursor-not-allowed focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">
+                      Novo E-mail *
+                    </label>
+                    <input
+                      type="email"
+                      value={emailData.novoEmail}
+                      onChange={(e) => setEmailData({ ...emailData, novoEmail: e.target.value })}
+                      required
+                      placeholder="Insira o seu novo e-mail"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">
+                      Confirmar Novo E-mail *
+                    </label>
+                    <input
+                      type="email"
+                      value={emailData.confirmarEmail}
+                      onChange={(e) => setEmailData({ ...emailData, confirmarEmail: e.target.value })}
+                      required
+                      placeholder="Confirme o novo e-mail"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                    />
+                  </div>
+
+                  <div className="flex flex-col md:flex-row justify-between items-center pt-4 space-y-3 md:space-y-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailData(prev => ({ ...prev, novoEmail: '', confirmarEmail: '' }));
+                        setAbaAtiva('ultimoPedido');
+                      }}
+                      className="w-full md:w-auto px-8 py-2.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 text-white px-10 py-2.5 rounded font-bold text-sm uppercase tracking-wider shadow-sm transition-colors"
+                    >
+                      ALTERAR E-MAIL
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* FORMULÁRIO CADASTRAL ORIGINAL */}
+            {(abaAtiva === 'pessoais' || abaAtiva === 'endereco') && (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                
+                {abaAtiva === 'pessoais' && (
+                  <>
+                    <div>
+                      <label htmlFor="nome" className="block text-xs font-bold text-gray-700 mb-1">Nome Completo*</label>
+                      <input 
+                        type="text" 
+                        id="nome" 
+                        name="nome" 
+                        value={formData.nome} 
+                        onChange={handleChange}
+                        required
+                        className="w-full px-3 py-2 border-b border-b-gray-300 focus:border-b-gray-900 focus:outline-none text-sm tracking-wide uppercase font-medium bg-transparent"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label htmlFor="email" className="block text-xs font-bold text-gray-700 mb-1">Email*</label>
+                        <input 
+                          type="email" 
+                          id="email" 
+                          name="email" 
+                          value={formData.email} 
+                          onChange={handleChange}
+                          required
+                          className="w-full px-3 py-2 border-b border-b-gray-300 focus:border-b-gray-900 focus:outline-none text-sm bg-transparent"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="cpf" className="block text-xs font-bold text-gray-700 mb-1">CPF*</label>
+                        <input 
+                          type="text" 
+                          id="cpf" 
+                          name="cpf" 
+                          value={formData.cpf} 
+                          onChange={handleChange}
+                          required
+                          disabled 
+                          className="w-full px-3 py-2 border-b border-b-gray-300 text-sm bg-transparent opacity-60 cursor-not-allowed focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="md:w-1/2 md:pr-3">
+                      <label htmlFor="nascimento" className="block text-xs font-bold text-gray-700 mb-1">Data de Nascimento*</label>
+                      <input 
+                        type="text" 
+                        id="nascimento" 
+                        name="nascimento" 
+                        value={formData.nascimento} 
+                        onChange={handleChange}
+                        required
+                        className="w-full px-3 py-2 border-b border-b-gray-300 focus:border-b-gray-900 focus:outline-none text-sm bg-transparent"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {abaAtiva === 'endereco' && (
+                  <div className="space-y-5">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                      <div className="w-full md:w-1/3">
+                        <label htmlFor="cep" className="block text-xs font-bold text-gray-700 mb-1">CEP *</label>
+                        <input 
+                          type="text" 
+                          id="cep" 
+                          name="cep" 
+                          value={formData.cep} 
+                          onChange={handleChange}
+                          maxLength={9}
+                          required
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+                      <div className="pt-2">
+                        <a href="https://buscacepinter.correios.com.br/" target="_blank" rel="noopener noreferrer" className="text-xs text-green-700 font-medium hover:underline">
+                          Não sabe o seu CEP? <span className="underline font-semibold">Consulte Aqui.</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="endereco" className="block text-xs font-bold text-gray-700 mb-1">Endereço *</label>
+                      <input 
+                        type="text" 
+                        id="endereco" 
+                        name="endereco" 
+                        value={formData.endereco} 
+                        onChange={handleChange}
+                        required
+                        className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm uppercase"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label htmlFor="numero" className="block text-xs font-bold text-gray-700 mb-1">Número *</label>
+                        <input 
+                          type="text" 
+                          id="numero" 
+                          name="numero" 
+                          value={formData.numero} 
+                          onChange={handleChange}
+                          required
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="complemento" className="block text-xs font-bold text-gray-700 mb-1">Complemento</label>
+                        <input 
+                          type="text" 
+                          id="complemento" 
+                          name="complemento" 
+                          value={formData.complemento} 
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="bairro" className="block text-xs font-bold text-gray-700 mb-1">Bairro *</label>
+                        <input 
+                          type="text" 
+                          id="bairro" 
+                          name="bairro" 
+                          value={formData.bairro} 
+                          onChange={handleChange}
+                          required
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm uppercase"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="md:col-span-2">
+                        <label htmlFor="cidade" className="block text-xs font-bold text-gray-700 mb-1">Cidade *</label>
+                        <input 
+                          type="text" 
+                          id="cidade" 
+                          name="cidade" 
+                          value={formData.cidade} 
+                          onChange={handleChange}
+                          required
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm uppercase"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="estado" className="block text-xs font-bold text-gray-700 mb-1">Estado *</label>
+                        <input 
+                          type="text" 
+                          id="estado" 
+                          name="estado" 
+                          value={formData.estado} 
+                          onChange={handleChange}
+                          required
+                          placeholder="Ex: São Paulo"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md focus:border-gray-900 focus:outline-none text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-col md:flex-row justify-between items-center pt-6 space-y-3 md:space-y-0">
+                  <button 
+                    type="button" 
+                    onClick={() => setAbaAtiva('ultimoPedido')}
+                    className="w-full md:w-auto px-12 py-2.5 border border-gray-400 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="w-full md:w-auto px-16 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm font-bold transition-colors uppercase tracking-wider shadow-sm"
+                  >
+                    Alterar
+                  </button>
+                </div>
+
+              </form>
+            )}
+          </main>
+        </div>
       </div>
+
     </div>
   );
 }
