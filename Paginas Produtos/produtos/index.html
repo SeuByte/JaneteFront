@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Produtos</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 40px;
+      background: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background: #333;
+      color: white;
+    }
+
+    tr:hover {
+      background: #f1f1f1;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>📦 Lista de Produtos</h1>
+
+<button onclick="carregarProdutos()">Carregar Produtos</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Estoque</th>
+      <th>Unidade</th>
+      <th>Valor Venda</th>
+      <th>Grupo</th>
+    </tr>
+  </thead>
+
+  <tbody id="tabela"></tbody>
+</table>
+
+<script>
+async function carregarProdutos() {
+  try {
+    const res = await fetch("http://localhost:3000/produtos");
+    const produtos = await res.json();
+
+    const tabela = document.getElementById("tabela");
+    tabela.innerHTML = "";
+
+    produtos.forEach(p => {
+      const valor = Number(p.Valor_venda)
+        .toFixed(2)
+        .replace(".", ",");
+
+      tabela.innerHTML += `
+        <tr>
+          <td>${p.Nome}</td>
+          <td>${p.Estoque}</td>
+          <td>${p.Unidade}</td>
+          <td>R$ ${p.Valor_venda.replace(".", ",")}</td>
+          <td>${p.Grupo}</td>
+        </tr>
+      `;
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao carregar produtos");
+  }
+}
+</script>
+
+</body>
+</html>
