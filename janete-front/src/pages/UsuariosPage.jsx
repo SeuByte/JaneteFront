@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-export default function AlterarDados() {
+export default function Usuarios() {
   const navigate = useNavigate();
 
   // Estado para controlar a aba ativa ('pessoais' ou 'endereco')
