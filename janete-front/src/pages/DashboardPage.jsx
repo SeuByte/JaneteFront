@@ -20,7 +20,7 @@ export default function Dashboard() {
   
   return (
     <div className="dashboard-container">
-      <h1>Relatório Geral Janete</h1>
+      <h1 class='title_h1'>Relatório Geral Janete</h1>
       
       {!dados ? (
         <p>Carregando dados...</p>
@@ -45,25 +45,61 @@ export default function Dashboard() {
             <p>{dados.pedidos_enviados}</p>
           </div>
 
-          <div className="card full-width">
-            <h2> Estoque Baixo</h2>
-            <ul className="estoque-lista">
-              {dados["relatorio estoque"].baixo_estoque.map((item, index) => (
-                <li key={index} className="estoque-item">
-                  {item.nome} - <strong>{item.quantidade} unidades</strong>
-                </li>
-              ))}
-            </ul>
+        <div className="card full-width">
+          <h2 class="title_h2">TOP 10 Estoque Negativo </h2>
+          <div className="grafico-container">
+            <ResponsiveContainer>
+              <BarChart layout="vertical" data={dados["relatorio estoque"].baixo_estoque} margin={{ left: 100 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis 
+                  dataKey="nome" 
+                  type="category" 
+                  width={180} 
+                  tick={{ fontSize: 12, whiteSpace: 'nowrap' }}
+                  interval={0}
+                />
+                <Tooltip />
+                <Bar dataKey="quantidade" fill="#ff4d4f" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
+        </div>
 
+        <div className="card full-width">
+          <h2 class="title_h2"> TOP 10 Estoque Positivo</h2>
+          <div className="grafico-container">
+            <ResponsiveContainer>
+              <BarChart layout="vertical" data={dados["relatorio estoque"].alto_estoque} margin={{ left: 100 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                 <YAxis 
+                  dataKey="nome" 
+                  type="category" 
+                  width={180} 
+                  tick={{ fontSize: 12, whiteSpace: 'nowrap' }}
+                  interval={0}
+                />
+                <Tooltip />
+                <Bar dataKey="quantidade" fill="#4CAF50" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
           <div className="card full-width">
             <h2>Produtos por Grupo (Quantidade)</h2>
-            <div style={{ width: '100%', height: 400 }}>
+            <div className="grafico-container">
               <ResponsiveContainer>
                 <BarChart data={dados.contagem_por_grupo} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  {/* Usamos o _id que vem do seu JSON como o nome da barra */}
-                  <XAxis dataKey="_id" interval={0} angle={-45} textAnchor="end" height={100} />
+                  <XAxis 
+                    dataKey="_id" 
+                    interval={0} 
+                    angle={-45} 
+                    textAnchor="end" 
+                    height={80} 
+                    tick={{ fontSize: 11 }} 
+                  />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="total" fill="#4CAF50" />

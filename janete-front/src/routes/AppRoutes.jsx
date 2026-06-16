@@ -15,10 +15,10 @@ export default function AppRoutes() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} /> 
-          <Route path="/dashboard" element={<Dashboard />} />
+          
           <Route path="/checkout" element={<Checkout />} />
         </Route>
-        
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/cadastro2" element={<Cadastro2 />} />
