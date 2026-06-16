@@ -1,0 +1,178 @@
+.navebar {
+    background-color: #147C06;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    
+}
+
+
+.divicons {
+    display: flex;
+    gap: 1rem;
+    margin-left: 2rem;
+    cursor: pointer;
+}
+
+.icns-insta {
+    width: 1.8rem;
+    height: 1.8rem;
+    transition: 0.6s;
+    
+}
+
+.icns-whats {
+    width: 1.8rem;
+    height: 1.8rem;
+    transition: 0.6s;
+    
+}
+
+.icns-face {
+    width: 1.8rem;
+    height: 1.8rem;
+    transition: 0.6s;
+    
+}
+
+.icns-insta:hover {
+    background: linear-gradient(45deg, #cee406, #ba1509, #eb04a6, #c506bb);
+    width: 2.2rem;
+    height: 2.2rem;
+    transition: 0.8s;
+    border-radius: 30%;
+
+}
+
+.icns-whats:hover {
+    background: linear-gradient(45deg, #74f05f, #319812, #0ff503, #0b8e02);
+    width: 2.2rem;
+    height: 2.2rem;
+    transition: 0.8s;
+    border-radius: 25%;
+
+}
+
+.icns-face:hover {
+    background: linear-gradient(45deg, #5f83df, #173ba8, #167de3, #0939b4);
+    width: 2.2rem;
+    height: 2.2rem;
+    transition: 0.8s;
+    border-radius: 50%;
+
+}
+
+.navgate {
+    margin-left: auto;              
+    display: flex;
+    align-items: center;
+
+
+ 
+}
+
+.aga4 {
+    color: #e8e8e8;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-right: 0.7rem;
+}
+
+.btnave {
+    background-color: #ff8706;
+    width: 6rem;
+    height: 1.8rem;
+    border: none;
+    border-radius: 3rem;
+    color: aliceblue;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 0.8rem;
+    transition: 0.5s;
+
+}
+
+.btnave:hover {
+    transition: 0.4s;
+    background-color: #eb6b16;
+    height: 2rem;
+}
+
+.ctnpae {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    align-items: center;
+      
+}
+
+.fotoJana {
+    
+    
+    margin-left: 1rem;
+    
+    
+}
+
+.chubagui {
+ 
+    font-size: 1.4rem;
+    height: 11vh;
+    gap: 2rem;
+
+}
+
+.aga3nav {
+    transition: 0.5s;
+}
+
+.aga3nav:hover {
+    background-color: #2db523;
+    color: aliceblue;
+    transition: 0.6s;
+    padding: 0.6rem;
+    border-radius: 1.6rem;
+    cursor: pointer;
+    text-decoration: underline;
+
+}
+
+.carrInho {
+    border-style: solid;
+    border-width: 0.4vh;
+    height: 2rem;
+    width: 10rem;
+    justify-content: center;
+    padding: 0.5rem;
+    align-items: center;
+    display: flex;
+    font-size: 1rem;
+    padding: 0.2rem;
+    gap: 0.5rem;
+    cursor: pointer;
+    
+}
+
+
+.dentroCarrinho {
+    
+    margin-right: 2rem;
+    
+    
+}
+
+.dentroCarrinho:hover {
+    background-color: #2fb725;
+    color: aliceblue;
+    transition: 0.5s;
+    
+}
+
+.fotoCar {
+    width: 1.5rem;
+    
+    height: 1.5rem;
+}

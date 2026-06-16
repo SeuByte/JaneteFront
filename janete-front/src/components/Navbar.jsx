@@ -55,10 +55,27 @@ function NavBar() {
       <div className='bg-[#147C06] mt-2 h-6 w-full'>
       </div>
 
+<<<<<<< Updated upstream
+=======
+        <Link to="/" className="hover:opacity-90 transition">
+            <img
+              src="/JaneteIcon.png"
+              alt="Janete Naturais"
+              className="w-24 sm:w-32 md:w-40 cursor-pointer"
+            />
+          </Link>
+>>>>>>> Stashed changes
 
 
 
 
+<<<<<<< Updated upstream
+=======
+            <Link to="/QuemSomos" className="hover:text-yellow-500 transition">
+              Quem Somos
+            </Link>
+          </nav>
+>>>>>>> Stashed changes
 
 
 

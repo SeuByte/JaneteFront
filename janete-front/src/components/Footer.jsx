@@ -16,6 +16,37 @@ function footer() {
 
         <>
 
+<<<<<<< Updated upstream
+=======
+                        {/* LISTA INSTITUCIONAL (Links de Navegação) */}
+                        <nav className="flex flex-col items-center md:items-start gap-4">
+                            <h2 className="text-3xl font-bold mb-2 text-white">
+                                Institucional
+                            </h2>
+                            <ul className="flex flex-col gap-3 text-lg font-semibold text-[#147C06]">
+                                <li>
+                                    <Link to="/produtos" className="hover:text-yellow-500 transition-colors block">
+                                        Produtos
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/ofertas" className="hover:text-yellow-500 transition-colors block">
+                                        Ofertas
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/dicas" className="hover:text-yellow-500 transition-colors block">
+                                        Dicas
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/QuemSomos" className="hover:text-yellow-500 transition-colors block">
+                                        Quem Somos
+                                    </Link>
+                                </li>
+                            </ul>
+                        </nav>
+>>>>>>> Stashed changes
 
 
             <div className='backG'>
