@@ -1,7 +1,12 @@
-export default function Home() {
+// HomePage.jsx
+import Hero from '../components/hero'
+
+const HomePage = () => {
   return (
     <div>
-      <h1>Home</h1>
+      <Hero />
     </div>
   )
 }
+
+export default HomePage;
