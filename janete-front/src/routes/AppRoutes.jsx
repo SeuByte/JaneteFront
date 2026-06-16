@@ -8,6 +8,7 @@ import Cadastro2 from "../pages/CadrastroP";
 import Dashboard from "../pages/DashboardPage";
 import Login from "../pages/LoginPage";
 import Checkout from "../pages/CheckoutPage";
+import Listadeclientes from "../pages/Listadeclientes";
 import Produtos from "../pages/ProdutosPage"
 
 export default function AppRoutes() {
@@ -19,8 +20,10 @@ export default function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/produtos" element={<Produtos />} />
           <Route path="/checkout" element={<Checkout />} />
+           
         </Route>
         
+        <Route path="/listadeclientes" element={<Listadeclientes />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/cadastro2" element={<Cadastro2 />} />
