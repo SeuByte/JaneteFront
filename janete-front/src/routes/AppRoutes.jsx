@@ -8,6 +8,7 @@ import Cadastro2 from "../pages/CadrastroP";
 import Dashboard from "../pages/DashboardPage";
 import Login from "../pages/LoginPage";
 import Checkout from "../pages/CheckoutPage";
+import Produtos from "../pages/ProdutosPage"
 
 export default function AppRoutes() {
   return (

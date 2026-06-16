@@ -4,11 +4,12 @@ import Footer from "../components/Footer";
 
 export default function MainLayout() {
   return (
-   
-    <div className="flex flex-col h-screen w-full">
+    // TROCAMOS 'h-screen' POR 'min-h-screen' PARA PERMITIR QUE A TELA ESTIQUE
+    // ADICIONAMOS 'm-0 p-0 overflow-x-hidden' PARA BLINDAR AS LATERAIS
+    <div className="flex flex-col min-h-screen w-full m-0 p-0 overflow-x-hidden bg-transparent">
       <Navbar />
 
-     
+  
       <main className="flex-1 w-full">
         <Outlet />
       </main>
