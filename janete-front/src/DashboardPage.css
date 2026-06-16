@@ -1,0 +1,50 @@
+/* DashboardPage.css */
+
+
+
+
+.dashboard-container {
+  padding: 40px;
+  background-color: #f4f4f4;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.card p {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 10px 0 0;
+}
+
+.full-width {
+  grid-column: span 3;
+}
+
+.estoque-lista {
+  list-style: none;
+  padding: 0;
+}
+
+.estoque-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
