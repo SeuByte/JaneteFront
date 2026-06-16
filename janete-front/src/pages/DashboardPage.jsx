@@ -26,10 +26,25 @@ export default function Dashboard() {
   }
 
   const dadosPedidos = [
-    { name: 'Pendentes', value: dados.pedidos_pendentes },
-    { name: 'Enviados', value: dados.pedidos_enviados },
-  ];
-  const CORES = ['#faad14', '#4CAF50'];
+  {
+    name: 'Pendentes',
+    value: dados.pedidos_pendentes
+  },
+  {
+    name: 'Aprovados',
+    value: dados.pedidos_aprovados
+  },
+  {
+    name: 'Cancelados',
+    value: dados.pedidos_cancelados
+  }
+];
+
+const CORES = [
+  '#faad14',
+  '#52c41a',
+  '#ff4d4f'
+];
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -63,10 +78,40 @@ export default function Dashboard() {
             <p>{dados.total_clientes}</p>
           </div>
 
+        <div className="card">
+          <h2>Total de Produtos</h2>
+          <p>{dados.total_produtos}</p>
+        </div>
+
           <div className="card">
             <h2>Receita Total</h2>
             <p>R$ {dados.receita_total.toFixed(2)}</p>
           </div>
+
+          <div className="card">
+      <h2>Total de Pedidos</h2>
+      <p>{dados.total_pedidos}</p>
+    </div>
+
+          <div className="card">
+          <h2>Pedidos Pendentes</h2>
+          <p>{dados.pedidos_pendentes}</p>
+        </div>
+
+          <div className="card">
+          <h2>Pedidos Aprovados</h2>
+          <p>{dados.pedidos_aprovados}</p>
+        </div>
+
+          <div className="card">
+          <h2>Pedidos Cancelados</h2>
+          <p>{dados.pedidos_cancelados}</p>
+        </div>
+
+          <div className="card">
+          <h2>Ticket Médio</h2>
+          <p>R$ {dados.ticket_medio.toFixed(2)}</p>
+        </div>
 
           <div className="card">
             <h2>Distribuição de Pedidos</h2>
