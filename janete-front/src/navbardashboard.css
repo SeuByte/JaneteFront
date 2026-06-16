@@ -1,0 +1,50 @@
+/* Container principal do layout */
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Navbar Lateral */
+.navbar-lateral {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 60px;
+  background-color: #2c3e50;
+  color: white;
+  z-index: 1000;
+  transition: width 0.3s;
+  overflow: hidden;
+  padding: 20px 0;
+}
+
+.navbar-lateral:hover {
+  width: 200px;
+}
+
+.navbar-lateral ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 50px;
+}
+
+.navbar-lateral li {
+  padding: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.navbar-lateral a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+/* Ajuste para o conteúdo principal não ficar escondido */
+.content-wrapper {
+  margin-left: 80px;
+  flex: 1;
+  padding: 20px;
+}
