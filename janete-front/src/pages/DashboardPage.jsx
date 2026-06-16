@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getDashboardStats } from '../../services/dashboard_relatorio'; 
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, 
   PieChart, Pie, Cell, Legend 
 } from 'recharts';
 import '../DashboardPage.css';
+import '../navbardashboard.css';
 
 export default function Dashboard() {
   const [dados, setDados] = useState(null);
@@ -35,19 +37,18 @@ export default function Dashboard() {
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       
       {/* NAVBAR LATERAL FLUTUANTE */}
-      <nav style={{
-        position: 'fixed', left: 0, top: 0, height: '100%', width: '60px',
-        backgroundColor: '#2c3e50', color: 'white', zIndex: 1000,
-        transition: 'width 0.3s', overflow: 'hidden', padding: '20px 0'
-      }} 
-      onMouseEnter={(e) => e.currentTarget.style.width = '200px'}
-      onMouseLeave={(e) => e.currentTarget.style.width = '60px'}
-      >
-        <ul style={{ listStyle: 'none', padding: 0, marginTop: '50px' }}>
-          {['Relatorio', 'Produtos', 'Clientes'].map((item) => (
-            <li key={item} style={{ padding: '20px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-              {item === 'Dashboard' ? '📊' : item === 'Produtos' ? '📦' : '👥'} 
-              <span style={{ marginLeft: '15px' }}>{item}</span>
+      <nav className="navbar-lateral">
+        <ul>
+          {[
+            { name: 'Relatorio', path: '/', icon: '📊' },
+            { name: 'Produtos', path: '/produtos', icon: '📦' },
+            { name: 'Clientes', path: '/clientes', icon: '👥' }
+          ].map((item) => (
+            <li key={item.name}>
+              <Link to={item.path}>
+                <span>{item.icon}</span>
+                <span style={{ marginLeft: '15px' }}>{item.name}</span>
+              </Link>
             </li>
           ))}
         </ul>
@@ -73,7 +74,13 @@ export default function Dashboard() {
             <div className="grafico-container" style={{ height: 300 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={dadosPedidos} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                  <Pie 
+                    data={dadosPedidos} 
+                    innerRadius={60} 
+                    outerRadius={80} 
+                    paddingAngle={5} 
+                    dataKey="value"
+                  >
                     {dadosPedidos.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={CORES[index % CORES.length]} />
                     ))}
