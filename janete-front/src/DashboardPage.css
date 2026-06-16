@@ -1,0 +1,83 @@
+/* DashboardPage.css */
+
+
+
+
+.dashboard-container {
+  padding: 40px;
+  background-color: #f4f4f4;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-height: 200px;
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.card p {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 10px 0 0;
+}
+
+.full-width {
+  grid-column: 1 / -1; 
+}
+
+.estoque-lista {
+  list-style: none;
+  padding: 0;
+}
+
+.estoque-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.title_h2{
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 2%;
+
+}
+
+.title_h1{
+  text-align: center;
+  font-weight: bold;
+  font-size: 30px;
+}
+
+@media (max-width: 600px) {
+  /* Diminui a fonte do eixo X especificamente no celular */
+  .recharts-xAxis .recharts-cartesian-axis-tick-value {
+    font-size: 9px !important;
+  }
+  
+  /* Se o nome for muito grande, o próprio navegador já corta com reticências */
+  .recharts-cartesian-axis-tick {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+.grafico-container{
+  width: 100%;
+  height: 400px;
+  min-width: 0;
+}

@@ -17,11 +17,11 @@ export default function AppRoutes() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} /> 
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/produtos" element={<Produtos />} />
+          
           <Route path="/checkout" element={<Checkout />} />
            
         </Route>
+        <Route path="/dashboard" element={<Dashboard />} />
         
         <Route path="/listadeclientes" element={<Listadeclientes />} />
         <Route path="/login" element={<Login />} />
