@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getDashboardStats } from '../../services/dashboard_relatorio'; 
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import '../DashboardPage.css';
 
 export default function Dashboard() {
@@ -45,7 +46,7 @@ export default function Dashboard() {
           </div>
 
           <div className="card full-width">
-            <h2>⚠️ Estoque Baixo</h2>
+            <h2> Estoque Baixo</h2>
             <ul className="estoque-lista">
               {dados["relatorio estoque"].baixo_estoque.map((item, index) => (
                 <li key={index} className="estoque-item">
@@ -56,13 +57,18 @@ export default function Dashboard() {
           </div>
 
           <div className="card full-width">
-            <h2>📦 Produtos por Grupo</h2>
-            <div className="grupos-grid">
-              {dados.contagem_por_grupo.map((grupo, index) => (
-                <div key={index} className="grupo-item">
-                  <strong>{grupo._id}</strong>: {grupo.total}
-                </div>
-              ))}
+            <h2>Produtos por Grupo (Quantidade)</h2>
+            <div style={{ width: '100%', height: 400 }}>
+              <ResponsiveContainer>
+                <BarChart data={dados.contagem_por_grupo} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  {/* Usamos o _id que vem do seu JSON como o nome da barra */}
+                  <XAxis dataKey="_id" interval={0} angle={-45} textAnchor="end" height={100} />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="total" fill="#4CAF50" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
