@@ -63,10 +63,8 @@ function NavBar() {
       </div>
 
       <div className="ctnpae">
-        <Link to="/">
         <img src="/JaneteIcon.png" alt="" className="fotoJana" />
-        </Link>  
-        
+
         <div
           className="
             chubagui
@@ -80,21 +78,13 @@ function NavBar() {
             gap-8
           "
         >
-          <Link to="/produtos" className="hover:text-yellow-500 transition">
-              Produtos
-            </Link>
+          <h3 className="aga3nav">Produtos</h3>
 
-            <Link to="/ofertas" className="hover:text-yellow-500 transition">
-              Ofertas
-            </Link>
+          <h3 className="aga3nav">Ofertas</h3>
 
-            <Link to="/dicas" className="hover:text-yellow-500 transition">
-              Dicas
-            </Link>
+          <h3 className="aga3nav">Dicas</h3>
 
-            <Link to="/QuemSomos" className="hover:text-yellow-500 transition">
-              Quem Somos
-            </Link>
+          <h3 className="aga3nav">Sobre Nós</h3>
         </div>
 
         <div
@@ -115,6 +105,7 @@ function NavBar() {
       <div
         className="
           bg-[#147C06]
+       
           h-6
           w-full
         "
