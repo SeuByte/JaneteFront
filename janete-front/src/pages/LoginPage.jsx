@@ -36,8 +36,9 @@ function Login() {
             </a>
           </div>
 
+          {/* Corrigido aqui: Removido o 'to' duplicado */}
           <Link
-            to="/"
+            to="/AreaCliente"
             className="mx-auto mt-2 inline-flex h-12 w-full max-w-xs items-center justify-center rounded-full bg-[#2fb21e] px-6 text-lg font-semibold text-white transition hover:bg-[#1e8716]"
           >
             Entrar
