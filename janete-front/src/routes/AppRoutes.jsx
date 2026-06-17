@@ -19,6 +19,7 @@ export default function AppRoutes() {
           <Route path="/" element={<Home />} /> 
           
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/produtos" element={<Produtos />} />
            
         </Route>
         <Route path="/dashboard" element={<Dashboard />} />
