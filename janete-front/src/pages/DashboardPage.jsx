@@ -80,19 +80,14 @@ const CORES = [
           </div>
 
         <div className="card">
-          <h2>Total de Produtos</h2>
-          <p>{dados.total_produtos}</p>
-        </div>
+        <h2>Total de Produtos</h2>
+        <p>{dados.total_produtos}</p>
+      </div>
 
           <div className="card">
-            <h2>Receita Total</h2>
-            <p>R$ {dados.receita_total.toFixed(2)}</p>
-          </div>
-
-          <div className="card">
-      <h2>Total de Pedidos</h2>
-      <p>{dados.total_pedidos}</p>
-    </div>
+          <h2>Total de Pedidos</h2>
+          <p>{dados.total_pedidos}</p>
+      </div>
 
           <div className="card">
           <h2>Pedidos Pendentes</h2>
@@ -100,19 +95,19 @@ const CORES = [
         </div>
 
           <div className="card">
-          <h2>Pedidos Aprovados</h2>
-          <p>{dados.pedidos_aprovados}</p>
-        </div>
+            <h2>Pedidos Aprovados</h2>
+            <p>{dados.pedidos_aprovados}</p>
+          </div>
 
           <div className="card">
-          <h2>Pedidos Cancelados</h2>
-          <p>{dados.pedidos_cancelados}</p>
-        </div>
+            <h2>Pedidos Cancelados</h2>
+            <p>{dados.pedidos_cancelados}</p>
+          </div>
 
           <div className="card">
-          <h2>Ticket Médio</h2>
-          <p>R$ {dados.ticket_medio.toFixed(2)}</p>
-        </div>
+            <h2>Ticket Médio</h2>
+            <p>R$ {dados.ticket_medio.toFixed(2)}</p>
+          </div>
 
           <div className="card">
             <h2>Distribuição de Pedidos</h2>
