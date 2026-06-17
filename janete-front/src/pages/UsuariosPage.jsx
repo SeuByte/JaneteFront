@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-export default function AlterarDados() {
+export default function Usuarios() {
   const navigate = useNavigate();
 
   // Estado para controlar a aba ativa ('pessoais' ou 'endereco')
@@ -33,10 +33,25 @@ export default function AlterarDados() {
 
   // Função para simular o logout do usuário
   const handleLogout = () => {
-    alert('Desconectando...');
-    // Exemplo: localStorage.clear();
-    navigate('/login'); 
-  };
+
+  localStorage.removeItem(
+    "token"
+  );
+
+  localStorage.removeItem(
+    "logado"
+  );
+
+  sessionStorage.clear();
+
+  navigate(
+    "/login",
+    {
+      replace: true
+    }
+  );
+
+};
 
   return (
     <div className="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between font-['Inter',_sans-serif]">
