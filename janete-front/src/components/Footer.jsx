@@ -24,25 +24,25 @@ function footer() {
                 <div className='footer-left'>
 
                     <h2 className='text-amber-50 font-bold'>AJUDA E SUPORTE</h2>
-                    <ul className="flex flex-col gap-3 text-lg font-semibold text-[#147C06]">
+                    <ul className="flex flex-col gap-3 mt-5 text-lg font-semibold text-[#147C06]">
                         <li>
-                            <Link to="/produtos" className="text-white hover:text-yellow-400 font-bold transition-colors block">
+                            <Link to="/produtos" className="text-white hover:text-orange-400 font-bold transition-colors block">
                                 Produtos
                             </Link>
                         </li>
                         <li>
-                            <Link to="/ofertas" className="text-white hover:text-yellow-400 font-bold transition-colors block">
+                            <Link to="/ofertas" className="text-white hover:text-orange-400 font-bold transition-colors block">
                                 Ofertas
                             </Link>
                         </li>
                         <li>
-                            <Link to="/dicas" className="text-white hover:text-yellow-400 font-bold transition-colors block">
+                            <Link to="/dicas" className="text-white hover:text-orange-400 font-bold transition-colors block">
                                 Dicas
                             </Link>
                         </li>
                         <li>
-                            <Link to="/QuemSomos" className="text-white hover:text-yellow-400 font-bold transition-colors block">
-                                Quem Somos
+                            <Link to="/QuemSomos" className="text-white hover:text-orange-400 font-bold transition-colors block">
+                                Sobre Nós
                             </Link>
                         </li>
                     </ul>

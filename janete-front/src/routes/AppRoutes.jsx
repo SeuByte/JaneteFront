@@ -14,6 +14,7 @@ import AreaCliente from "../pages/AreaCliente";
 import PoliticaPrivacidade from "../pages/PoliticaPrivacidade";
 import QuemSomos from "../pages/QuemSomos";
 import FaleConosco from "../pages/FaleConosco";
+import Ofertas from "../pages/OfertasPage";
 
 export default function AppRoutes() {
   return (
