@@ -85,19 +85,19 @@ function NavBar() {
             font-medium
           "
         >
-          <Link to="/produtos" className="hover:text-yellow-500 transition">
+          <Link to="/produtos" className="aga3nav">
             Produtos
           </Link>
 
-          <Link to="/ofertas" className="hover:text-yellow-500 transition">
+          <Link to="/ofertas" className="aga3nav">
             Ofertas
           </Link>
 
-          <Link to="/dicas" className="hover:text-yellow-500 transition">
+          <Link to="/dicas" className="aga3nav">
             Dicas
           </Link>
 
-          <Link to="/quemSomos" className="hover:text-yellow-500 transition">
+          <Link to="/quemSomos" className="aga3nav">
             Quem Somos
           </Link>
         </div>
