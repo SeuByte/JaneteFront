@@ -24,7 +24,7 @@ function NavBar() {
         </div>
 
         <div className="navgate flex items-center gap-3">
-          <img src="/telIcon.png" alt="" className="w-5 h-5 mr-1 mt-1" />
+          <img src="/telIcon.png" alt="" className="w-5 h-5  mt-1" />
 
           <h4 className="aga4">(19)98362-5160</h4>
 
