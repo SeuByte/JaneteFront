@@ -122,6 +122,7 @@ function NavBar() {
       <div
         className="
           bg-[#147C06]
+       
           h-6
           w-full
         "

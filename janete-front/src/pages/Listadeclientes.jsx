@@ -46,7 +46,7 @@ export default function ClientesList() {
         const response = await listar_clientes();
         setClientes(response.data ?? []);
       } catch (e) {
-        setErro("Erro ao carregar clientes. Verifique a conexão com a API.");
+        setErro("Erro ao carregar clientes. Verifique a conexão com a API. Erro: " + e);
       } finally {
         setLoading(false);
       }
@@ -91,7 +91,7 @@ export default function ClientesList() {
     </span>
   );
 
-  const Th = ({ label, k }) => (
+  const Th = ({ label, k })=> (
     <th
       onClick={() => handleSort(k)}
       className={`cl-th ${sortKey === k ? "cl-th--active" : ""}`}
@@ -145,13 +145,13 @@ export default function ClientesList() {
         <table className="cl-table">
           <thead>
             <tr>
-              <Th label="Nome" k="Nome" />
-              <Th label="Email" k="Email" />
-              <Th label="Celular" k="Celular" />
-              <Th label="CPF" k="CPF" />
-              <Th label="Cidade" k="Cidade" />
-              <Th label="UF" k="Estado" />
-              <Th label="Nascimento" k="Data_nasc" />
+              <th className={Th} label="Nome" k="Nome" />
+              <th className={Th} label="Email" k="Email" />
+              <th className={Th} label="Celular" k="Celular" />
+              <th className={Th} label="CPF" k="CPF" />
+              <th className={Th} label="Cidade" k="Cidade" />
+              <th className={Th} label="UF" k="Estado" />
+              <th className={Th} label="Nascimento" k="Data_nasc" />
             </tr>
           </thead>
           <tbody>
