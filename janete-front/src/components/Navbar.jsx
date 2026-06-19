@@ -26,7 +26,7 @@ function NavBar() {
         <div className="navgate flex items-center gap-3">
           <img src="/telIcon.png" alt="" className="w-5 h-5  mt-1" />
 
-          <h4 className="aga4">(19)98362-5160</h4>
+          <h4 className="aga4">(19)3352-2262</h4>
 
           <h4 className="aga4">|</h4>
 
@@ -62,37 +62,54 @@ function NavBar() {
         </div>
       </div>
 
-      <div className="ctnpae">
-        <img src="/JaneteIcon.png" alt="" className="fotoJana" />
-
+      {/* Alterado para flex, largura total e padding horizontal */}
+      <div className="ctnpae flex items-center w-full px-4">
+        
+        {/* Bloco da Logo alterado */}
+        <div className="flex-shrink-0">
+          <Link to="/">
+            <img src="/JaneteIcon.png" alt="" className="fotoJana" />
+          </Link>
+        </div>
+        
+        {/* Bloco do Menu alterado */}
         <div
           className="
             chubagui
             flex-1
-            text-center
-            text-[#147C06]
-            font-medium
             flex
             justify-center
             items-center
             gap-8
+            text-[#147C06]
+            font-medium
           "
         >
-          <h3 className="aga3nav">Produtos</h3>
+          <Link to="/produtos" className="hover:text-yellow-500 transition">
+            Produtos
+          </Link>
 
-          <h3 className="aga3nav">Ofertas</h3>
+          <Link to="/ofertas" className="hover:text-yellow-500 transition">
+            Ofertas
+          </Link>
 
-          <h3 className="aga3nav">Dicas</h3>
+          <Link to="/dicas" className="hover:text-yellow-500 transition">
+            Dicas
+          </Link>
 
-          <h3 className="aga3nav">Sobre Nós</h3>
+          <Link to="/quemSomos" className="hover:text-yellow-500 transition">
+            Quem Somos
+          </Link>
         </div>
 
+        {/* Bloco do Carrinho alterado */}
         <div
           className="
             dentroCarrinho
-            text-center
-            text-[#147C06]
-            font-medium
+            flex-shrink-0
+            flex
+            justify-end
+            items-center
           "
         >
           <button className="carrInho">
