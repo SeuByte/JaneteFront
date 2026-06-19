@@ -9,17 +9,22 @@ import Dashboard from "../pages/DashboardPage";
 import Login from "../pages/LoginPage";
 import Checkout from "../pages/CheckoutPage";
 import Listadeclientes from "../pages/Listadeclientes";
+<<<<<<< HEAD
 import Produtos from "../pages/ProdutosPage"
+=======
+import ProdutosPage from "../pages/ProdutosPage";
+>>>>>>> b1f2417 (Adicionei imagens de produtos em destaque na página home)
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} /> 
+          <Route path="/inicial" element={<Home />} /> 
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/produtos" element={<Produtos />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/produtos" element={<ProdutosPage/>} />
            
         </Route>
         

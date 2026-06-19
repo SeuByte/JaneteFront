@@ -38,10 +38,11 @@ function NavBar() {
 
 
         <div className='chubagui flex-1 text-center text-[#147C06] font-medium flex justify-center items-center gap-8'>
-            <h3 className='aga3nav'>Produtos</h3>
-            <h3 className='aga3nav'>Ofertas</h3>
-            <h3 className='aga3nav'>Dicas</h3>
-            <h3 className='aga3nav'>Sobre Nós</h3>
+           <a href="/inicial"><h3 className='aga3nav'>Inicial</h3></a>
+            <a href="/produtos"><h3 className='aga3nav'>Produtos</h3></a>
+            <a href="/ofertas"><h3 className='aga3nav'>Ofertas</h3></a>
+            <a href="/dicas"><h3 className='aga3nav'>Dicas</h3></a>
+            <a href="/sobre-nos"><h3 className='aga3nav'>Sobre Nós</h3></a>
             </div>
 
 
