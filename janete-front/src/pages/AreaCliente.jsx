@@ -54,11 +54,12 @@ export default function AlterarDados() {
     estado: ''
   });
 
-  // Estado unificado contendo os dados do cliente e endereço principal
+  // Estado unificado contendo os dados do cliente e endereço principal (Incluindo CNPJ)
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
     cpf: '',
+    cnpj: '',
     nascimento: '',
     cep: '',
     endereco: '',
@@ -145,11 +146,12 @@ export default function AlterarDados() {
         // Rota que retorna os dados do usuário logado baseado no Token
         const response = await api.get('/cliente/perfil'); 
         
-        // Mapeia os dados do banco para o estado do formulário
+        // Mapeia os dados do banco para o estado do formulário (Incluindo CNPJ)
         setFormData({
           nome: response.data.nome || '',
           email: response.data.email || '',
           cpf: response.data.cpf || '',
+          cnpj: response.data.cnpj || '',
           nascimento: response.data.nascimento || '',
           cep: response.data.cep || '',
           endereco: response.data.endereco || '',
@@ -227,6 +229,27 @@ export default function AlterarDados() {
     const { name, value } = e.target;
     let valor = value;
 
+    // Máscara automática de CNPJ
+    if (name === 'cnpj') {
+      valor = value
+        .replace(/\D/g, '')
+        .replace(/^(\d{2})(\d)/, '$1.$2')
+        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1/$2')
+        .replace(/(\d{4})(\d)/, '$1-$2')
+        .slice(0, 18);
+    }
+
+    // Máscara automática de CPF
+    if (name === 'cpf') {
+      valor = value
+        .replace(/\D/g, '')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1-$2')
+        .slice(0, 14);
+    }
+
     if (name === 'cep') {
       valor = value
         .replace(/\D/g, '')
@@ -273,7 +296,7 @@ export default function AlterarDados() {
     e.preventDefault();
     try {
       await api.put('/cliente/atualizar', formData);
-      alert('Dados cadastrais updated com sucesso!');
+      alert('Dados cadastrais atualizados com sucesso!');
     } catch (error) {
       console.error('Erro ao atualizar dados:', error);
       alert(error.response?.data?.mensagem || 'Erro ao salvar alterações.');
@@ -348,7 +371,7 @@ export default function AlterarDados() {
     try {
       if (idEnderecoEdicao) {
         await api.put(`/cliente/enderecos/${idEnderecoEdicao}`, novoEndereco);
-        alert('Endereço updated com sucesso!');
+        alert('Endereço atualizado com sucesso!');
       } else {
         await api.post('/cliente/enderecos', novoEndereco);
         alert('Endereço cadastrado com sucesso!');
@@ -439,10 +462,8 @@ export default function AlterarDados() {
   return (
     <div className="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between font-['Inter',_sans-serif]">
       
-      {/* 1. NAVBAR ADICIONADA NO TOPO */}
       <NavBar />
       
-      {/* Container principal ajustado para ocupar o espaço restante */}
       <div className="max-w-7xl w-full mx-auto px-4 py-8 flex-grow">
         
         <div className="text-center mb-6">
@@ -684,7 +705,7 @@ export default function AlterarDados() {
             {abaAtiva === 'valeCompra' && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Vale Compra
+                  Vale Comra
                 </h2>
 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
@@ -1185,7 +1206,7 @@ export default function AlterarDados() {
                 {abaAtiva === 'pessoais' && (
                   <>
                     <div>
-                      <label htmlFor="nome" className="block text-xs font-bold text-gray-700 mb-1">Nome Completo*</label>
+                      <label htmlFor="nome" className="block text-xs font-bold text-gray-700 mb-1">Nome Completo / Razão Social*</label>
                       <input 
                         type="text" 
                         id="nome" 
@@ -1211,23 +1232,42 @@ export default function AlterarDados() {
                         />
                       </div>
                       
-                      <div>
-                        <label htmlFor="cpf" className="block text-xs font-bold text-gray-700 mb-1">CPF*</label>
-                        <input 
-                          type="text" 
-                          id="cpf" 
-                          name="cpf" 
-                          value={formData.cpf} 
-                          onChange={handleChange}
-                          required
-                          disabled 
-                          className="w-full px-3 py-2 border-b border-b-gray-300 text-sm bg-transparent opacity-60 cursor-not-allowed focus:outline-none"
-                        />
-                      </div>
+                      {/* LÓGICA DE DETECÇÃO CPF / CNPJ - AGORA TOTALMENTE EDITÁVEL */}
+                      {formData.cnpj ? (
+                        <div>
+                          <label htmlFor="cnpj" className="block text-xs font-bold text-gray-700 mb-1">CNPJ*</label>
+                          <input 
+                            type="text" 
+                            id="cnpj" 
+                            name="cnpj" 
+                            value={formData.cnpj} 
+                            onChange={handleChange}
+                            placeholder="00.000.000/0000-00"
+                            required
+                            className="w-full px-3 py-2 border-b border-b-gray-300 focus:border-b-gray-900 focus:outline-none text-sm bg-transparent"
+                          />
+                        </div>
+                      ) : (
+                        <div>
+                          <label htmlFor="cpf" className="block text-xs font-bold text-gray-700 mb-1">CPF*</label>
+                          <input 
+                            type="text" 
+                            id="cpf" 
+                            name="cpf" 
+                            value={formData.cpf} 
+                            onChange={handleChange}
+                            placeholder="000.000.000-00"
+                            required
+                            className="w-full px-3 py-2 border-b border-b-gray-300 focus:border-b-gray-900 focus:outline-none text-sm bg-transparent"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="md:w-1/2 md:pr-3">
-                      <label htmlFor="nascimento" className="block text-xs font-bold text-gray-700 mb-1">Data de Nascimento*</label>
+                      <label htmlFor="nascimento" className="block text-xs font-bold text-gray-700 mb-1">
+                        {formData.cnpj ? 'Data de Abertura*' : 'Data de Nascimento*'}
+                      </label>
                       <input 
                         type="text" 
                         id="nascimento" 
@@ -1370,7 +1410,6 @@ export default function AlterarDados() {
         </div>
       </div>
 
-      {/* 2. FOOTER ADICIONADO NO RODAPÉ */}
       <Footer />
 
     </div>

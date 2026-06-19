@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 // =========================================================================
 // COMPONENTE 1: BANNER DE COOKIES (Mantido unificado para uso externo)
@@ -32,7 +32,7 @@ export function CookieBanner() {
           cookies essenciais para garantir uma navegação confiável, segura e de alta qualidade. Ao clicar em 
           "ENTENDI", você declara o seu expresso consentimento com a nossa coleta e armazenamento seguro de dados.
         </p>
-        <p className="text-xs text-slate-500">
+        <div className="text-xs text-slate-500">
           Para mais esclarecimentos sobre segurança, gerenciamento de perfil ou exclusão de dados, consulte a nossa{' '}
           <p className="text-sm text-gray-700">
             Nossa loja utiliza cookies para facilitar o uso do site e melhorar o seu
@@ -49,7 +49,7 @@ export function CookieBanner() {
             </Link>
           </p>
           .
-        </p>
+        </div>
       </div>
 
       <button
@@ -66,82 +66,14 @@ export function CookieBanner() {
 // COMPONENTE 2: PÁGINA COMPLETA DA POLÍTICA DE PRIVACIDADE E QUALIDADE
 // =========================================================================
 export default function PoliticaPrivacidade() {
-  const navigate = useNavigate();
-  const [secaoAtiva, setSecaoAtiva] = useState('introducao');
-
-  // Lista de seções para alimentar o Menu Lateral de Navegação Rápida
-  const secoes = [
-    { id: 'introducao', label: '1. Introdução', icon: '📝' },
-    { id: 'consentimento', label: '2. Consentimento', icon: '🤝' },
-    { id: 'coleta', label: '3. Coleta de Dados', icon: '📊' },
-    { id: 'armazenamento', label: '4. Armazenamento', icon: '💾' },
-    { id: 'divulgacao', label: '5. Compartilhamento', icon: '🔗' },
-    { id: 'cookies', label: '6. Uso de Cookies', icon: '🍪' },
-    { id: 'seguranca', label: '7. Segurança', icon: '🔒' },
-    { id: 'controle', label: '8. Seu Controle', icon: '⚙️' },
-    { id: 'alteracoes', label: '9. Alterações', icon: '🔄' },
-  ];
-
-  // Função para dar scroll suave até a seção ao clicar no menu lateral
-  const scrollToSection = (id) => {
-    setSecaoAtiva(id);
-    const element = document.getElementById(id);
-    if (element) {
-      const yOffset = -40; // Margem para não colar no topo
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-  };
-
   return (
     <div className="bg-slate-50 text-slate-800 min-h-screen font-['Inter',_sans-serif]">
       
-      {/* Cabeçalho Superior Minimalista */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-emerald-600 text-sm font-black tracking-wider">Janete Produtos Naturais</span>
-            <span className="text-slate-300">|</span>
-            <span className="text-xs text-slate-500 font-medium hidden sm:inline">Portal de Transparência</span>
-          </div>
-          
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center space-x-1 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-wider"
-          >
-            <span>←</span> <span>Voltar</span>
-          </button>
-        </div>
-      </header>
-
       {/* Container Principal */}
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-4 gap-10 items-start">
+      <div className="max-w-4xl mx-auto px-6 py-12">
         
-        {/* MENU LATERAL FIXO (Apenas Desktop) */}
-        <aside className="hidden lg:block lg:col-span-1 sticky top-24 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <p className="text-xs font-bold uppercase text-slate-400 tracking-widest mb-4 px-2">
-            Índice do Documento
-          </p>
-          <nav className="space-y-1">
-            {secoes.map((secao) => (
-              <button
-                key={secao.id}
-                onClick={() => scrollToSection(secao.id)}
-                className={`w-full flex items-center space-x-3 p-2.5 text-xs font-medium rounded-lg text-left transition-all ${
-                  secaoAtiva === secao.id
-                    ? 'bg-green-50 text-green-800 font-semibold border-l-4 border-green-700 pl-2'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
-              >
-                <span>{secao.icon}</span>
-                <span>{secao.label}</span>
-              </button>
-            ))}
-          </nav>
-        </aside>
-
         {/* CORPO DO TEXTO JURÍDICO */}
-        <main className="col-span-1 lg:col-span-3 bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm max-w-4xl">
+        <main className="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm">
           
           <div className="border-b border-slate-200 pb-6 mb-10">
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
