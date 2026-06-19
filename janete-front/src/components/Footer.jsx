@@ -43,6 +43,7 @@ function footer() {
                         <li>
                             <Link to="/QuemSomos" className="text-white hover:text-orange-400 font-bold transition-colors block">
                                 Sobre Nós
+                            </Link>
                             <Link to="/PoliticaPrivacidade" className="text-white hover:text-yellow-400 font-bold transition-colors block">
                                 Política de Privacidade
                             </Link>
