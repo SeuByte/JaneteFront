@@ -41,6 +41,11 @@ function footer() {
                             </Link>
                         </li>
                         <li>
+                            <Link to="/PoliticaPrivacidade" className="text-white hover:text-yellow-400 font-bold transition-colors block">
+                                Política de Privacidade
+                            </Link>
+                        </li>
+                        <li>
                             <Link to="/QuemSomos" className="text-white hover:text-yellow-400 font-bold transition-colors block">
                                 Quem Somos
                             </Link>
@@ -50,7 +55,7 @@ function footer() {
 
                 <div className='footer-center'>
 
-                    <a href="https://maps.app.goo.gl/qjCHX4U7MYBDjTjH9">
+                    <a href="https://maps.app.goo.gl/qjCHX4U7MYBDjTjH9" target="_blank">
                         <img src="./MapaJanete.png" alt="" className='maps' />
                     </a>
 
@@ -69,7 +74,7 @@ function footer() {
 
                         <img src="./emailIcon.png" alt="" className='w-5 h-5 mr-2' />
 
-                        <p className='text-amber-50'>janete.naturais@gmail.com</p>
+                        <p className='text-amber-50'>comercial@janeteprodutosnaturais.com.br</p>
 
                     </div>
 
@@ -78,7 +83,7 @@ function footer() {
 
                         <img src="./telIcon.png" alt="" className='w-5 h-5 mr-2' />
 
-                        <p className='text-amber-50'>(19)98328-4729</p>
+                        <p className='text-amber-50'>(19)98860-5981</p>
 
                     </div>
 
