@@ -56,8 +56,8 @@ const CORES = [
         <ul>
           {[
             { name: 'Relatorio', path: '/', icon: '📊' },
-            { name: 'Produtos', path: '/produtos', icon: '📦' },
-            { name: 'Clientes', path: '/clientes', icon: '👥' }
+            { name: 'Produtos', path: '/dashboard-produtos', icon: '📦' },
+            { name: 'Clientes', path: '/Listadeclientes', icon: '👥' }
           ].map((item) => (
             <li key={item.name}>
               <Link to={item.path}>
