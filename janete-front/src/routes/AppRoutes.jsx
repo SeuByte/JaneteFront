@@ -22,7 +22,7 @@ export default function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} /> 
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/ofertas" element={<Ofertas />} />
+          {/* <Route path="/ofertas" element={<Ofertas />} /> */}
           <Route path="/produtos" element={<Produtos />} />
           <Route path="/PoliticaPrivacidade" element={<PoliticaPrivacidade />} />
           <Route path="/QuemSomos" element={<QuemSomos />} />
