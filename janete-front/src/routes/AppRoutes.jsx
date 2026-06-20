@@ -15,6 +15,7 @@ import PoliticaPrivacidade from "../pages/PoliticaPrivacidade";
 import QuemSomos from "../pages/QuemSomos";
 import FaleConosco from "../pages/FaleConosco";
 import Ofertas from "../pages/OfertasPage";
+import DashboardProdutosPage from "../pages/DashboardProdutosPage";
 
 export default function AppRoutes() {
   return (
@@ -32,6 +33,7 @@ export default function AppRoutes() {
         </Route>
         
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard-produtos"element={<DashboardProdutosPage />} />
         <Route path="/listadeclientes" element={<Listadeclientes />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
