@@ -37,7 +37,7 @@ export default function QuemSomos() {
               O início de um propósito saudável
             </h2>
             <p className="text-gray-600 leading-relaxed text-lg">
-              A **Janete Produtos Naturais** nasceu do desejo profundo de reconectar as pessoas com o que a terra produz de melhor. Acreditamos que a alimentação consciente e o uso de elementos naturais são as chaves para uma vida mais equilibrada, longeva e feliz.
+              A <strong>Janete Produtos Naturais</strong> nasceu do desejo profundo de reconectar as pessoas com o que a terra produz de melhor. Acreditamos que a alimentação consciente e o uso de elementos naturais são as chaves para uma vida mais equilibrada, longeva e feliz.
             </p>
             <p className="text-gray-600 leading-relaxed">
               Selecionamos a dedo cada produtor, grão, suplemento e produto que entra em nosso catálogo, garantindo procedência, pureza e o máximo de valor nutricional para você e sua família.
