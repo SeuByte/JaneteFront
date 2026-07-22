@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import bgImage from '../assets/BackGJanete.png';
 
 // --- CONFIGURAÇÕES E FUNÇÕES AUXILIARES ---
@@ -56,37 +56,46 @@ const validarCPF = (cpf) => {
 
 const validarCNPJ = (cnpj) => {
   const limpo = cnpj.replace(/\D/g, '');
+
   if (limpo.length !== 14 || /^(\d)\1+$/.test(limpo)) return false;
-  
+
   let tamanho = limpo.length - 2;
   let numeros = limpo.substring(0, tamanho);
-  const digitos = limpo.substring(tamanho);
-  let soma = 0, pos = tamanho - 7;
-  
+  let digitos = limpo.substring(tamanho);
+
+  let soma = 0;
+  let pos = tamanho - 7;
+
   for (let i = tamanho; i >= 1; i--) {
-    soma += numeros.charAt(tamanho - i) * pos--;
+    soma += Number(numeros.charAt(tamanho - i)) * pos--;
     if (pos < 2) pos = 9;
   }
+
   let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-  if (resultado !== parseInt(digitos.charAt(0))) return false;
-  
-  tamanho = tamanho + 1;
+
+  if (resultado !== Number(digitos.charAt(0))) return false;
+
+  tamanho++;
   numeros = limpo.substring(0, tamanho);
+
   soma = 0;
-  pos = presidential = tamanho - 7;
-  for (let i = presidential; i >= 1; i--) {
-    soma += numeros.charAt( presidential - i) * pos--;
+  pos = tamanho - 7;
+
+  for (let i = tamanho; i >= 1; i--) {
+    soma += Number(numeros.charAt(tamanho - i)) * pos--;
     if (pos < 2) pos = 9;
   }
+
   resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-  if (resultado !== parseInt(digitos.charAt(1))) return false;
-  
-  return true;
+
+  return resultado === Number(digitos.charAt(1));
 };
 
 // --- COMPONENTE PRINCIPAL ---
 
 export default function CadastroJanete() {
+  const navigate = useNavigate();
+
   const [passoAtivo, setPassoAtivo] = useState(1);
 
   const [formData, setFormData] = useState({
@@ -158,6 +167,32 @@ export default function CadastroJanete() {
       }
     }
   };
+
+  const handleCadastro = () => {
+  if (!formData.email) {
+    alert("Informe o e-mail.");
+    return;
+  }
+
+  if (!formData.senha) {
+    alert("Informe a senha.");
+    return;
+  }
+
+  if (!formData.termoAceite) {
+    alert("Aceite os Termos de Uso.");
+    return;
+  }
+
+  if (!formData.politicaPrivacidade) {
+    alert("Aceite a Política de Privacidade.");
+    return;
+  }
+
+  alert("Cadastro realizado com sucesso!");
+
+  navigate("/login");
+};
 
   const inputStyle = `
     w-full
@@ -543,16 +578,16 @@ export default function CadastroJanete() {
                   Anterior
                 </button>
 
-                <Link
-                  to="/home"
-                  className="
-                    w-full md:w-56 h-12 rounded-2xl bg-gradient-to-r
-                    from-[#2fb21e] to-[#49d234] text-white font-semibold
-                    flex items-center justify-center shadow-lg hover:scale-[1.02] transition
-                  "
-                >
-                  Cadastrar
-                </Link>
+                <button
+            onClick={handleCadastro}
+            className="
+              w-full md:w-56 h-12 rounded-2xl bg-gradient-to-r
+              from-[#2fb21e] to-[#49d234] text-white font-semibold
+              flex items-center justify-center shadow-lg hover:scale-[1.02] transition
+             "
+              >
+                Cadastrar
+                  </button>
               </div>
             </>
           )}
